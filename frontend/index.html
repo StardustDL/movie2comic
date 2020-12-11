@@ -2,58 +2,70 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movie2Comic</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
-		integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Movie2Comic</title>
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@5.8.55/css/materialdesignicons.min.css">
-    <link rel="stylesheet" href="css/site.css">
+	<link rel="stylesheet" href="https://unpkg.com/ant-design-vue@2.0.0-rc.4/dist/antd.min.css">
+	</script>
+	<link rel="stylesheet" href="css/site.css">
 </head>
 
 <body>
-    <div id="app">
-		<nav class="navbar navbar-expand-lg navbar-light bg-light mb-2">
-			<h1 class="navbar-brand" href="#">Movie2Comic</h1>
-			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-				aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-				<span class="navbar-toggler-icon"></span>
-			</button>
+	<div id="app">
+		<a-layout>
+			<a-layout-header :style="{ background: '#fff' }">
+				<h1>Movie2Comic</h1>
+				<a-menu theme="light">
+				</a-menu>
+			</a-layout-header>
+			<a-layout-content style="min-height: 100vh; margin-top: 30px">
+				<a-row type="flex" justify="center" align="top">
+					<a-col :span="18">
+						<a-steps v-model:current="selectedStep" type="navigation">
+							<a-step :status="getStepStatus(0)" title="Movie" description="Upload movie">
+							</a-step>
+							<a-step :status="getStepStatus(1)" title="Keyframes" description="Extract keyframes">
+							</a-step>
+							<a-step :status="getStepStatus(2)" title="Styles" description="Transfer styles">
+							</a-step>
+							<a-step :status="getStepStatus(3)" title="Subtitles" description="Generate subtitles">
+							</a-step>
+							<a-step :status="getStepStatus(4)" title="Comic" description="Get the comic">
+							</a-step>
+						</a-steps>
+						<div v-if="selectedStep == 0" style="margin-top: 24px">
+							Movie
+						</div>
+						<div v-if="selectedStep == 1" style="margin-top: 24px">
+							Keyframes
+						</div>
+						<div v-if="selectedStep == 2" style="margin-top: 24px">
+							Styles
+						</div>
+						<div v-if="selectedStep == 3" style="margin-top: 24px">
+							Subtitles
+						</div>
+						<div v-if="selectedStep == 4" style="margin-top: 24px">
+							Comic
+						</div>
+					</a-col>
+				</a-row>
 
-			<div class="collapse navbar-collapse" id="navbarSupportedContent">
-				<ul class="navbar-nav mr-auto">
-
-				</ul>
-				<div class="btn-group" role="group">
-				</div>
-			</div>
-		</nav>
-		<div class="container-fluid">
-			<div class="row">
-			</div>
-		</div>
-		<footer class="border-top footer text-muted">
-			<div class="container-fluid">
-				Copyright <span class="mdi mdi-copyright"></span> 2020 - 
-				Movie2Comic - StardustDL - <a href="https://github.com/StardustDL/movie2comic"><span class="mdi mdi-github"></span>
+			</a-layout-content>
+			<a-layout-footer>
+				Copyright <span class="mdi mdi-copyright"></span> 2020 -
+				Movie2Comic - StardustDL - <a href="https://github.com/StardustDL/movie2comic"><span
+						class="mdi mdi-github"></span>
 					GitHub</a>
-			</div>
-		</footer>
+			</a-layout-footer>
+		</a-layout>
 	</div>
 
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-        crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
-        integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
-        crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
-        integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
-        crossorigin="anonymous"></script>
+	<script src="https://unpkg.com/vue@3.0.4"></script>
+	<script src="https://unpkg.com/ant-design-vue@2.0.0-rc.4/dist/antd.min.js"></script>
 
-    <script src="https://unpkg.com/vue@3.0.4"></script>
-
-    <script src="js/site.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/site.js" type="text/javascript" charset="utf-8"></script>
 </body>
 
 </html>
