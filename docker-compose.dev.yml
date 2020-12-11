@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  httpd:
+    image: abiosoft/caddy
+    volumes:
+      - ./Caddyfile:/etc/Caddyfile
+      - ./frontend:/var/www/public
+    ports:
+      - "5000:5000"
+    links:
+      - backend
+    restart: always
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend.dev
+    ports:
+      - "5050:5000"
+    volumes:
+      - ./backend:/app

@@ -1,0 +1,32 @@
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  /* Margin bottom by footer height */
+  margin-bottom: 60px;
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  white-space: nowrap;
+  line-height: 60px; /* Vertically center the text there */
+}
+
+#editor {
+  left: 10px;
+  bottom: 10px;
+  position: absolute;
+  top: 100px;
+  right: 10px
+}
+
+.prograss-bar-hide {
+  background-color: #e9ecef;
+}
+
+.progress {
+  height: 40px
+}

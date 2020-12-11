@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  httpd:
+    image: abiosoft/caddy
+    volumes:
+      - ./Caddyfile:/etc/Caddyfile
+      - ./frontend:/var/www/public
+    ports:
+      - "5000:5000"
+    links:
+      - backend
+    restart: always
+  backend:
+    image: stardustdl/movie2comic
+    restart: always
