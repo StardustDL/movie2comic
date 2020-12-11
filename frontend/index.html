@@ -25,18 +25,22 @@
 						<a-steps v-model:current="selectedStep" type="navigation">
 							<a-step :status="getStepStatus(0)" title="Movie" description="Upload movie">
 							</a-step>
-							<a-step :status="getStepStatus(1)" title="Keyframes" description="Extract keyframes">
+							<a-step :status="getStepStatus(1)" title="Keyframes" description="Extract keyframes"
+								:disabled="currentStep < 1">
 							</a-step>
-							<a-step :status="getStepStatus(2)" title="Subtitles" description="Generate subtitles">
+							<a-step :status="getStepStatus(2)" title="Subtitles" description="Generate subtitles"
+								:disabled="currentStep < 2">
 							</a-step>
-							<a-step :status="getStepStatus(3)" title="Styles" description="Transfer styles">
+							<a-step :status="getStepStatus(3)" title="Styles" description="Transfer styles"
+								:disabled="currentStep < 3">
 							</a-step>
-							<a-step :status="getStepStatus(4)" title="Comic" description="Get the comic">
+							<a-step :status="getStepStatus(4)" title="Comic" description="Get the comic"
+								:disabled="currentStep < 4">
 							</a-step>
 						</a-steps>
-						<div v-if="selectedStep == 0" style="margin-top: 24px">
-							<a-upload-dragger :action="apiUrl + '/api/session'" name="file"
-								:disabled="sessionId != null" @change="onUploadChange">
+						<div v-show="selectedStep == 0" style="margin-top: 24px">
+							<a-upload-dragger v-if="sessionId == null" :action="apiUrl + '/api/session'" name="file"
+								@change="onUploadChange">
 								<p class="ant-upload-drag-icon">
 									<span class="mdi mdi-upload" style="font-size:xx-large;"></span>
 								</p>
@@ -47,6 +51,10 @@
 									Only one video file is allowed.
 								</p>
 							</a-upload-dragger>
+
+							<video controls v-if="sessionId != null" :src="`${apiUrl}/api/session/${sessionId}/input`"
+								class></video>
+
 						</div>
 						<div v-show="selectedStep == 1" style="margin-top: 24px">
 							<a-button @click="onStartKeyframeExtractor">Start extracting keyframes</a-button>
@@ -55,7 +63,7 @@
 								<a-card-grid v-for="frame in pages.p1.frames" style="width:25%;text-align:center">
 									<img :src="`${apiUrl}/api/session/${sessionId}/keyframes/${frame.name}`"
 										style="width: 100%" />
-									<a-card-meta :title="`${frame.time}s`">
+									<a-card-meta :title="readableSecondTimeString(frame.time)">
 									</a-card-meta>
 								</a-card-grid>
 							</a-card>
@@ -71,6 +79,7 @@
 						</div>
 					</a-col>
 				</a-row>
+
 
 			</a-layout-content>
 			<a-layout-footer>

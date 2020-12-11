@@ -21,6 +21,19 @@ const App = {
         }
     },
     methods: {
+        readableSecondTimeString(value) {
+            let minute = Math.floor(value / 60);
+            let second = Math.floor(value % 60);
+            if (minute == 0) {
+                return `${second}''`;
+            }
+            else if (second == 0) {
+                return `${minute}'`;
+            }
+            else {
+                return `${minute}'${second}''`;
+            }
+        },
         onStartKeyframeExtractor() {
             this.startKeyframeExtractor();
         },

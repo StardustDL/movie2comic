@@ -1,4 +1,5 @@
 import json
+import os
 from flask import Flask, request, make_response
 from flask.helpers import send_file
 from flask_cors import CORS
@@ -40,6 +41,15 @@ def createSession():
 def getSessionStage(sid):
     session = Session(sid)
     return ok_string(str(session.stage().value))
+
+
+@app.route('/api/session/<sid>/input', methods=['GET'])
+def getInput(sid):
+    session = Session(sid)
+    path = session.input_file
+    if os.path.exists(path):
+        return send_file(path, mimetype="video/mp4")
+    return notfound()
 
 
 @app.route('/api/session/<sid>/keyframes', methods=['PUT'])
