@@ -1,9 +1,19 @@
+// const PREPURL = "";
+const PREPURL = "http://localhost:5050" // Debug
+
 const App = {
     data() {
         return {
-            currentStep: 2,
+            sessionId: null,
+            currentStep: 0,
             model: {
                 selectedStep: 0,
+            },
+            apiUrl: PREPURL,
+            pages: {
+                p0: {
+                    inputFile: null,
+                }
             }
         }
     },
@@ -19,6 +29,18 @@ const App = {
                 return "wait";
             }
             return "wait";
+        },
+        onUploadChange(event) {
+            if (event.file.status !== 'uploading') {
+            }
+            if (event.file.status === 'done') {
+                this.sessionId = event.file.response;
+                this.currentStep = 1;
+                this.model.selectedStep = 1;
+                this.$message.success(`${event.file.name} file uploaded successfully`);
+            } else if (event.file.status === 'error') {
+                this.$message.error(`${event.file.name} file upload failed.`);
+            }
         }
     },
     computed: {

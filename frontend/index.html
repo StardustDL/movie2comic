@@ -15,7 +15,7 @@
 	<div id="app">
 		<a-layout>
 			<a-layout-header :style="{ background: '#fff' }">
-				<h1>Movie2Comic</h1>
+				<h1>Movie2Comic {{ sessionId != null ? ` - ${sessionId}` : "" }}</h1>
 				<a-menu theme="light">
 				</a-menu>
 			</a-layout-header>
@@ -35,18 +35,28 @@
 							</a-step>
 						</a-steps>
 						<div v-if="selectedStep == 0" style="margin-top: 24px">
-							Movie
+							<a-upload-dragger :action="apiUrl + '/api/session'" name="file" :disabled="sessionId != null" @change="onUploadChange">
+								<p class="ant-upload-drag-icon">
+									<span class="mdi mdi-upload" style="font-size:xx-large;"></span>
+								</p>
+								<p class="ant-upload-text">
+									Click or drag file to this area to upload
+								</p>
+								<p class="ant-upload-hint">
+									Only one video file is allowed.
+								</p>
+							</a-upload-dragger>
 						</div>
-						<div v-if="selectedStep == 1" style="margin-top: 24px">
+						<div v-show="selectedStep == 1" style="margin-top: 24px">
 							Keyframes
 						</div>
-						<div v-if="selectedStep == 2" style="margin-top: 24px">
+						<div v-show="selectedStep == 2" style="margin-top: 24px">
 							Styles
 						</div>
-						<div v-if="selectedStep == 3" style="margin-top: 24px">
+						<div v-show="selectedStep == 3" style="margin-top: 24px">
 							Subtitles
 						</div>
-						<div v-if="selectedStep == 4" style="margin-top: 24px">
+						<div v-show="selectedStep == 4" style="margin-top: 24px">
 							Comic
 						</div>
 					</a-col>
