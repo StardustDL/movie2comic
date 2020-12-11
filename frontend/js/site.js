@@ -4,8 +4,8 @@ const PREPURL = "http://localhost:5050" // Debug
 const App = {
     data() {
         return {
-            sessionId: null,
-            currentStep: 0,
+            sessionId: "9a7dc7b3-3b97-11eb-b47a-c83dd4eac83a",
+            currentStep: 1,
             model: {
                 selectedStep: 0,
             },
@@ -13,11 +13,32 @@ const App = {
             pages: {
                 p0: {
                     inputFile: null,
+                },
+                p1: {
+                    frames: []
                 }
             }
         }
     },
     methods: {
+        onStartKeyframeExtractor() {
+            this.startKeyframeExtractor();
+        },
+        onGetFrames() {
+            this.getKeyframes();
+        },
+        async startKeyframeExtractor() {
+            let settings = {
+                method: 'PUT',
+            };
+            await fetch(`${this.apiUrl}/api/session/${this.sessionId}/keyframes`, settings).then(res => res.text()).then(text => {
+                console.log(text);
+            });
+        },
+        async getKeyframes() {
+            let result = await fetch(`${this.apiUrl}/api/session/${this.sessionId}/keyframes`).then(res => res.json());
+            this.pages.p1.frames = result.frames;
+        },
         getStepStatus(id) {
             if (id < this.currentStep) {
                 return "finish";

@@ -27,15 +27,16 @@
 							</a-step>
 							<a-step :status="getStepStatus(1)" title="Keyframes" description="Extract keyframes">
 							</a-step>
-							<a-step :status="getStepStatus(2)" title="Styles" description="Transfer styles">
+							<a-step :status="getStepStatus(2)" title="Subtitles" description="Generate subtitles">
 							</a-step>
-							<a-step :status="getStepStatus(3)" title="Subtitles" description="Generate subtitles">
+							<a-step :status="getStepStatus(3)" title="Styles" description="Transfer styles">
 							</a-step>
 							<a-step :status="getStepStatus(4)" title="Comic" description="Get the comic">
 							</a-step>
 						</a-steps>
 						<div v-if="selectedStep == 0" style="margin-top: 24px">
-							<a-upload-dragger :action="apiUrl + '/api/session'" name="file" :disabled="sessionId != null" @change="onUploadChange">
+							<a-upload-dragger :action="apiUrl + '/api/session'" name="file"
+								:disabled="sessionId != null" @change="onUploadChange">
 								<p class="ant-upload-drag-icon">
 									<span class="mdi mdi-upload" style="font-size:xx-large;"></span>
 								</p>
@@ -48,13 +49,22 @@
 							</a-upload-dragger>
 						</div>
 						<div v-show="selectedStep == 1" style="margin-top: 24px">
-							Keyframes
+							<a-button @click="onStartKeyframeExtractor">Start extracting keyframes</a-button>
+							<a-button @click="onGetFrames">Get extracted keyframes</a-button>
+							<a-card title="Keyframes">
+								<a-card-grid v-for="frame in pages.p1.frames" style="width:25%;text-align:center">
+									<img :src="`${apiUrl}/api/session/${sessionId}/keyframes/${frame.name}`"
+										style="width: 100%" />
+									<a-card-meta :title="`${frame.time}s`">
+									</a-card-meta>
+								</a-card-grid>
+							</a-card>
 						</div>
 						<div v-show="selectedStep == 2" style="margin-top: 24px">
-							Styles
+							Subtitles
 						</div>
 						<div v-show="selectedStep == 3" style="margin-top: 24px">
-							Subtitles
+							Styles
 						</div>
 						<div v-show="selectedStep == 4" style="margin-top: 24px">
 							Comic
