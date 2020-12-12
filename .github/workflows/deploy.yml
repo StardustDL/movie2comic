@@ -28,6 +28,10 @@ jobs:
         registry: registry.cn-hangzhou.aliyuncs.com
         username: ${{ secrets.ALIYUN_CR_USERNAME }}
         password: ${{ secrets.ALIYUN_CR_TOKEN }}
+    - name: Setup psake
+      run: Set-PSRepository -Name PSGallery -InstallationPolicy Trusted; Install-Module -Name psake
+    - name: Download models
+      run: Invoke-psake download-models
     - name: Push images
       uses: docker/build-push-action@v2
       with:

@@ -26,23 +26,8 @@ class SubtitleGenerator(StageWorker):
         return self.session.subtitle_file
 
     def work(self) -> StageResult:
-        return self.get_subtitles(self.session.video_file, self.session.subtitle_dir)
-
-
-class DefaultSubtitleGenerator(SubtitleGenerator):
-    def __init__(self):
-        super().__init__()
-
-    def get_subtitles(self, input_file_path, output_dir) -> SubtitleStageResult:
-        stream = ffmpeg.input(input_file_path)
-        audio_file = os.path.join(output_dir, "audio.wav")
-
-        # info = ffmpeg.probe(input_file_path, v="quiet", select_streams="v")
-        # fps_str = info["streams"][0]["r_frame_rate"]
-
-        fps = 100
-
-        stream = stream.audio.output(audio_file, format="wav")
+        stream = ffmpeg.input(self.session.video_file)
+        audio_file = os.path.join(self.session.subtitle_dir, "audio.wav")
 
         success = True
 
@@ -52,31 +37,54 @@ class DefaultSubtitleGenerator(SubtitleGenerator):
         except:
             success = False
 
+        if success:
+            result = self.get_subtitles(audio_file, self.session.subtitle_dir)
+        else:
+            result = SubtitleStageResult()
+
+        result.log += "\n" + \
+            f"stdout: {out.decode('utf-8')}\nstderr: {err.decode('utf-8')}"
+        return result
+
+
+class DefaultSubtitleGenerator(SubtitleGenerator):
+    def __init__(self):
+        super().__init__()
+
+    def get_subtitles(self, input_file_path, output_dir) -> SubtitleStageResult:
+        result = SubtitleStageResult()
+        return result
+
+
+class PocketSphinxSubtitleGenerator(SubtitleGenerator):
+    def __init__(self):
+        super().__init__()
+
+    def get_subtitles(self, input_file_path, output_dir) -> SubtitleStageResult:
         phrases = []
         log = ""
 
-        if success:
-            with contextlib.closing(wave.open(audio_file, 'r')) as f:
-                rate = f.getframerate()
-                frames = f.getnframes()
-                duration = frames / float(rate)
-                log += f"rate: {rate}, frames: {frames}, duration: {duration}"
-            
-            for phrase in AudioFile(audio_file=audio_file):
-                start = sys.maxsize
-                end = 0
-                for seg in phrase.seg():
-                    start = min(start, seg.start_frame)
-                    end = max(end, seg.end_frame)
+        with contextlib.closing(wave.open(input_file_path, 'r')) as f:
+            rate = f.getframerate()
+            frames = f.getnframes()
+            duration = frames / float(rate)
+            log += f"rate: {rate}, frames: {frames}, duration: {duration}"
 
-                log += f"{phrase}: {start}~{end}\n"
+        for phrase in AudioFile(audio_file=input_file_path):
+            start = sys.maxsize
+            end = 0
+            for seg in phrase.seg():
+                start = min(start, seg.start_frame)
+                end = max(end, seg.end_frame)
 
-                phrases.append(Subtitle(str(phrase), start /
-                                        float(rate), end / float(rate)))
+            log += f"{phrase}: {start}~{end}\n"
+
+            phrases.append(Subtitle(str(phrase), start /
+                                    float(rate), end / float(rate)))
 
         result = SubtitleStageResult()
-        result.success = success
-        result.log = log + "\n" + f"stdout: {out}\nstderr: {err}"
+        result.success = True
+        result.log = log
         result.subtitles = phrases
         return result
 
