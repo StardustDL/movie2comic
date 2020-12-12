@@ -1,10 +1,11 @@
+from backend import serialization
 import json
 import os
 from flask import Flask, request, make_response
 from flask.helpers import send_file
 from flask_cors import CORS
-from .session import Session, SessionStage
-from .serialization.json import Encoder
+from .session import Session, SessionStage, SessionState
+from .serialization.json import Encoder, Decoder
 
 
 app = Flask(__name__)
@@ -24,12 +25,12 @@ def ok_json(obj):
 
 
 @app.route('/api/session', methods=['POST'])
-def createSession():
+def input_video():
     session = Session()
     file = request.files.get("file")
     if file:
         session.initialize()
-        if session.input(file):
+        if session.input_video(file):
             return ok_string(session.id)
         else:
             session.clear()
@@ -38,54 +39,114 @@ def createSession():
 
 
 @app.route('/api/session/<sid>/stage', methods=['GET'])
-def getSessionStage(sid):
+def get_stage(sid):
     session = Session(sid)
     return ok_string(str(session.stage().value))
 
 
-@app.route('/api/session/<sid>/input', methods=['GET'])
-def getInput(sid):
+@app.route('/api/session/<sid>/state', methods=['GET'])
+def get_state(sid):
     session = Session(sid)
-    path = session.input_file
-    if os.path.exists(path):
+    return ok_string(str(session.state().value))
+
+
+@app.route('/api/session/<sid>/video', methods=['GET'])
+def get_video(sid):
+    session = Session(sid)
+    path = session.video_path()
+    if path:
         return send_file(path, mimetype="video/mp4")
     return notfound()
 
+# region frames
 
-@app.route('/api/session/<sid>/keyframes', methods=['PUT'])
-def startKeyframeExtractor(sid):
-    print(sid)
+
+@app.route('/api/session/<sid>/frames', methods=['PUT'])
+def work_frames(sid):
     session = Session(sid)
-    if session.work_keyframes():
+    if session.work_frames():
         return ok_string(session.id)
     return notfound()
 
 
-@app.route('/api/session/<sid>/keyframes', methods=['GET'])
-def getKeyframes(sid):
+@app.route('/api/session/<sid>/frames', methods=['GET'])
+def result_frames(sid):
     session = Session(sid)
-    result = session.keyframes()
+    result = session.result_frames()
     if result:
-        return {
-            "frames": [{"name": fr.name, "time": fr.time} for fr in result.frames]
-        }
+        return ok_json(result.as_dict())
     else:
         return notfound()
 
 
-@app.route('/api/session/<sid>/keyframes/<name>', methods=['GET'])
-def getKeyframe(sid, name):
+@app.route('/api/session/<sid>/frames/<name>', methods=['GET'])
+def frame_image_path(sid, name):
     session = Session(sid)
-    path = session.keyframe_path(name)
+    path = session.frame_image_path(name)
     if path:
         return send_file(path, mimetype="image/jpeg")
     return notfound()
 
+# endregion
+
+# region subtitles
+
+
+@app.route('/api/session/<sid>/subtitles', methods=['PUT'])
+def work_subtitles(sid):
+    session = Session(sid)
+    if session.work_subtitles():
+        return ok_string(session.id)
+    return notfound()
+
+
+@app.route('/api/session/<sid>/subtitles', methods=['GET'])
+def result_subtitles(sid):
+    session = Session(sid)
+    result = session.result_subtitles()
+    if result:
+        return ok_json(result.as_dict())
+    else:
+        return notfound()
+
+# endregion
+
+# region styles
+
+
+@app.route('/api/session/<sid>/styles', methods=['PUT'])
+def work_styles(sid):
+    session = Session(sid)
+    if session.work_styles():
+        return ok_string(session.id)
+    return notfound()
+
+
+@app.route('/api/session/<sid>/styles', methods=['GET'])
+def result_styles(sid):
+    session = Session(sid)
+    result = session.result_styles()
+    if result:
+        return ok_json(result.as_dict())
+    else:
+        return notfound()
+
+
+@app.route('/api/session/<sid>/styles/<name>', methods=['GET'])
+def styled_image_path(sid, name):
+    session = Session(sid)
+    path = session.styled_image_path(name)
+    if path:
+        return send_file(path, mimetype="image/jpeg")
+    return notfound()
+
+# endregion
+
 
 @app.route('/api/session/<sid>', methods=['DELETE'])
-def deleteSession(sid):
+def clear(sid):
     session = Session(sid)
-    if session.stage() is not SessionStage.Created:
+    if session.state() is not SessionState.AfterCreate:
         session.clear()
         return ok_string(session.id)
     return notfound()

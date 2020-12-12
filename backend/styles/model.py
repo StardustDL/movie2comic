@@ -3,10 +3,9 @@ from ..serialization import PropertySerializable
 from ..model import StageResult
 
 
-class Frame(PropertySerializable):
-    def __init__(self, name: str = "", time: float = 0.0):
+class StyledFrame(PropertySerializable):
+    def __init__(self, name: str = ""):
         self.name = name
-        self.time = time
 
     @property
     def name(self) -> str:
@@ -16,30 +15,22 @@ class Frame(PropertySerializable):
     def name(self, value: str) -> None:
         self._name = value
 
-    @property
-    def time(self) -> float:
-        return self._time
 
-    @time.setter
-    def time(self, value: float) -> None:
-        self._time = value
-
-
-class FrameStageResult(StageResult):
+class StyleStageResult(StageResult):
     def __init__(self):
-        super().__init__("Frame")
+        super().__init__("Style")
         self.frames = []
 
     @property
-    def frames(self) -> List[Frame]:
+    def frames(self) -> List[StyledFrame]:
         return self._frames
 
     @frames.setter
-    def frames(self, value: List[Frame]) -> None:
+    def frames(self, value: List[StyledFrame]) -> None:
         self._frames = value
 
     def as_dict(self):
         dic = super().as_dict()
-        dic["frames"] = [{"name": fr.name, "time": fr.time}
+        dic["frames"] = [{"name": fr.name}
                          for fr in self.frames]
         return dic

@@ -1,14 +1,19 @@
+from backend.styles.model import StyleStageResult
+from backend.styles.transfer import StyleTransfer
+from backend.subtitles.model import SubtitleStageResult
+from backend.subtitles.generator import SubtitleGenerator
+from backend.frames.extractor import FrameExtractor
+from backend.frames.model import FrameStageResult
 import os
-from typing import Optional
+from typing import Callable, Optional
 import uuid
 import shutil
 import json
 from enum import IntEnum
 from . import settings
-from .frames import FrameExtractorResult
 from .serialization.json import Decoder
 
-_ALLOWED_EXTENSIONS = ["mp4", "mpeg", "mpg", "wmv", "mov", "avi"]
+_ALLOWED_EXTENSIONS = ["mp4", "mpeg", "mpg", "wmv", "mov", "avi", "flv"]
 
 
 def _is_allowed_file(filename):
@@ -16,16 +21,32 @@ def _is_allowed_file(filename):
 
 
 class SessionStage(IntEnum):
-    Created = 0
-    Initialized = 1
-    Inputted = 2
-    KeyframeExtracting = 3
-    KeyframeExtracted = 4
-    SubtitleGenerating = 5
-    SubtitleGenerated = 6
-    StyleTranferring = 7
-    StyleTranferred = 8
-    Finished = 9
+    Create = 0,
+    Input = 1,
+    Frame = 2,
+    Subtitle = 3,
+    Style = 4,
+    Output = 5
+
+
+class SessionState(IntEnum):
+    AfterCreate = 0
+    AfterInitialize = 1
+    OnInput = 2
+    AfterInput = 3
+    OnFrame = 4
+    AfterFrame = 5
+    OnSubtitle = 6
+    AfterSubtitle = 7
+    OnStyle = 8
+    AfterStyle = 9
+    OnOutput = 10
+    AfterOutput = 11
+
+
+def _load_result(path):
+    with open(path, "r") as file:
+        return json.load(file, cls=Decoder)
 
 
 class Session:
@@ -36,78 +57,150 @@ class Session:
             data_root = settings.DATA_PATH
         self.id = sid
         self.data_dir = os.path.join(data_root, self.id)
-        self.input_file = os.path.join(self.data_dir, "input.dat")
-        self.keyframe_dir = os.path.join(self.data_dir, "keyframes")
-        self.keyframe_file = os.path.join(self.keyframe_dir, "info.json")
+        self.input_dir = os.path.join(self.data_dir, "input")
+        self.video_file = os.path.join(self.input_dir, "input.dat")
+        self.frame_dir = os.path.join(self.data_dir, "frames")
+        self.frame_file = os.path.join(self.frame_dir, "info.json")
         self.subtitle_dir = os.path.join(self.data_dir, "subtitles")
         self.subtitle_file = os.path.join(self.subtitle_dir, "info.json")
-        self.styletransfer_dir = os.path.join(self.data_dir, "styletransfer")
-        self.styletransfer_file = os.path.join(
-            self.styletransfer_dir, "info.json")
-        self.output_file = os.path.join(self.data_dir, "output.png")
+        self.style_dir = os.path.join(self.data_dir, "styles")
+        self.style_file = os.path.join(self.style_dir, "info.json")
+        self.output_dir = os.path.join(self.data_dir, "output")
+        self.output_file = os.path.join(self.output_dir, "output.png")
+
+    def state(self) -> SessionState:
+        if not os.path.exists(self.data_dir):
+            return SessionState.AfterCreate
+        if not os.path.exists(self.input_dir):
+            return SessionState.AfterInitialize
+        if not os.path.exists(self.video_file):
+            return SessionState.OnInput
+        if not os.path.exists(self.frame_dir):
+            return SessionState.AfterInput
+        if not os.path.exists(self.frame_file):
+            return SessionState.OnFrame
+        if not os.path.exists(self.subtitle_dir):
+            return SessionState.AfterFrame
+        if not os.path.exists(self.subtitle_file):
+            return SessionState.OnSubtitle
+        if not os.path.exists(self.style_dir):
+            return SessionState.AfterSubtitle
+        if not os.path.exists(self.style_file):
+            return SessionState.OnStyle
+        if not os.path.exists(self.output_dir):
+            return SessionState.AfterStyle
+        if not os.path.exists(self.output_file):
+            return SessionState.OnOutput
+        return SessionState.AfterOutput
 
     def stage(self) -> SessionStage:
-        if not os.path.exists(self.data_dir):
-            return SessionStage.Created
-        if not os.path.exists(self.input_file):
-            return SessionStage.Initialized
-        if not os.path.exists(self.keyframe_dir):
-            return SessionStage.Inputted
-        if not os.path.exists(self.keyframe_file):
-            return SessionStage.KeyframeExtracting
-        if not os.path.exists(self.subtitle_dir):
-            return SessionStage.KeyframeExtracted
-        if not os.path.exists(self.subtitle_file):
-            return SessionStage.SubtitleGenerating
-        if not os.path.exists(self.styletransfer_dir):
-            return SessionStage.SubtitleGenerated
-        if not os.path.exists(self.styletransfer_file):
-            return SessionStage.StyleTranferring
-        if not os.path.exists(self.output_file):
-            return SessionStage.StyleTranferred
-        return SessionStage.Finished
+        state = self.state()
+        return SessionStage(state.value // 2)
 
     def initialize(self):
         os.mkdir(self.data_dir)
 
-    def prepare_keyframe_extract(self):
-        os.mkdir(self.keyframe_dir)
-
-    def prepare_subtitle_generate(self):
-        os.mkdir(self.subtitle_dir)
-
-    def prepare_style_transfer(self):
-        os.mkdir(self.styletransfer_dir)
-
-    def input(self, request_file) -> bool:
+    def input_video(self, request_file) -> bool:
         if _is_allowed_file(request_file.filename):
-            request_file.save(self.input_file)
+            os.mkdir(self.input_dir)
+            tmp = self.video_file + ".tmp"
+            request_file.save(tmp)
+            shutil.move(tmp, self.video_file)
             return True
         return False
 
-    def work_keyframes(self) -> bool:
-        if self.stage() != SessionStage.Inputted:
-            return False
-        from .frames.extractor import KeyframeExtractor
+    def video_path(self) -> Optional[str]:
+        if self.state() >= SessionState.AfterInput:
+            path = self.video_file
+            if os.path.exists(path):
+                return path
+        return None
 
-        self.prepare_keyframe_extract()
-        worker = KeyframeExtractor(self.id)
+    # region frame
+
+    def work_frames(self, worker: FrameExtractor = None) -> bool:
+        if self.state() != SessionState.OnFrame - 1:
+            return False
+
+        if worker is None:
+            from .frames.extractor import DefaultFrameExtractor
+            worker = DefaultFrameExtractor()
+
+        os.mkdir(self.frame_dir)
+
+        worker.sid = self.id
         worker.start()
 
         return True
 
-    def keyframes(self) -> Optional[FrameExtractorResult]:
-        if self.stage() >= SessionStage.KeyframeExtracted:
-            with open(self.keyframe_file, "r") as file:
-                return json.load(file, cls=Decoder)
+    def result_frames(self) -> Optional[FrameStageResult]:
+        if self.state() >= SessionState.AfterFrame:
+            return _load_result(self.frame_file)
         return None
 
-    def keyframe_path(self, name) -> Optional[str]:
-        if self.stage() >= SessionStage.KeyframeExtracted:
-            path = os.path.join(self.keyframe_dir, name)
+    def frame_image_path(self, name) -> Optional[str]:
+        if self.state() >= SessionState.AfterFrame:
+            path = os.path.join(self.frame_dir, name)
             if os.path.exists(path):
                 return path
         return None
+
+    # endregion
+
+    # region subtitle
+
+    def work_subtitles(self, worker: SubtitleGenerator = None) -> bool:
+        if self.state() != SessionState.OnSubtitle - 1:
+            return False
+
+        if worker is None:
+            from .subtitles.generator import DefaultSubtitleGenerator
+            worker = DefaultSubtitleGenerator()
+
+        os.mkdir(self.subtitle_dir)
+
+        worker.sid = self.id
+        worker.start()
+
+        return True
+
+    def result_subtitles(self) -> Optional[SubtitleStageResult]:
+        if self.state() >= SessionState.AfterSubtitle:
+            return _load_result(self.subtitle_file)
+        return None
+
+    # endregion
+
+    # region style
+
+    def work_styles(self, worker: StyleTransfer = None) -> bool:
+        if self.state() != SessionState.OnStyle - 1:
+            return False
+
+        if worker is None:
+            from .styles.transfer import DefaultStyleTransfer
+            worker = DefaultStyleTransfer()
+
+        os.mkdir(self.style_dir)
+
+        worker.sid = self.id
+        worker.start()
+
+        return True
+
+    def result_styles(self) -> Optional[StyleStageResult]:
+        if self.state() >= SessionState.AfterStyle:
+            return _load_result(self.style_file)
+        return None
+
+    def styled_image_path(self, name) -> Optional[str]:
+        if self.state() >= SessionState.AfterStyle:
+            path = os.path.join(self.style_dir, name)
+            if os.path.exists(path):
+                return path
+        return None
+
+    # endregion
 
     def clear(self):
         shutil.rmtree(self.data_dir)

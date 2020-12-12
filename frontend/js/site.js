@@ -4,7 +4,7 @@ const PREPURL = "http://localhost:5050" // Debug
 const App = {
     data() {
         return {
-            sessionId: "9a7dc7b3-3b97-11eb-b47a-c83dd4eac83a",
+            sessionId: "59a999a0-3c36-11eb-9ac1-c83dd4eac83a",
             currentStep: 1,
             model: {
                 selectedStep: 0,
@@ -15,7 +15,31 @@ const App = {
                     inputFile: null,
                 },
                 p1: {
-                    frames: []
+                    result: {
+                        name: "",
+                        success: false,
+                        log: "",
+                        duration: 0,
+                        frames: [],
+                    }
+                },
+                p2: {
+                    result: {
+                        name: "",
+                        success: false,
+                        log: "",
+                        duration: 0,
+                        subtitles: [],
+                    }
+                },
+                p3: {
+                    result: {
+                        name: "",
+                        success: false,
+                        log: "",
+                        duration: 0,
+                        frames: [],
+                    }
                 }
             }
         }
@@ -35,23 +59,59 @@ const App = {
             }
         },
         onStartKeyframeExtractor() {
-            this.startKeyframeExtractor();
+            this.workFrames();
         },
         onGetFrames() {
-            this.getKeyframes();
+            this.resultFrames();
         },
-        async startKeyframeExtractor() {
+        //#region frames
+        async workFrames() {
             let settings = {
                 method: 'PUT',
             };
-            await fetch(`${this.apiUrl}/api/session/${this.sessionId}/keyframes`, settings).then(res => res.text()).then(text => {
+            await fetch(this.framesUrl, settings).then(res => res.text()).then(text => {
                 console.log(text);
             });
         },
-        async getKeyframes() {
-            let result = await fetch(`${this.apiUrl}/api/session/${this.sessionId}/keyframes`).then(res => res.json());
-            this.pages.p1.frames = result.frames;
+        async resultFrames() {
+            let result = await fetch(this.framesUrl).then(res => res.json());
+            this.pages.p1.result = result;
         },
+        frameImageUrl(name) {
+            return `${this.framesUrl}/${name}`;
+        },
+        //#endregion
+        //#region subtitles
+        async workSubtitles() {
+            let settings = {
+                method: 'PUT',
+            };
+            await fetch(this.subtitlesUrl, settings).then(res => res.text()).then(text => {
+                console.log(text);
+            });
+        },
+        async resultSubtitles() {
+            let result = await fetch(this.subtitlesUrl).then(res => res.json());
+            this.pages.p1.result = result;
+        },
+        //#endregion
+        //#region styles
+        async workStyles() {
+            let settings = {
+                method: 'PUT',
+            };
+            await fetch(this.stylesUrl, settings).then(res => res.text()).then(text => {
+                console.log(text);
+            });
+        },
+        async resultStyles() {
+            let result = await fetch(this.stylesUrl).then(res => res.json());
+            this.pages.p1.result = result;
+        },
+        styledImageUrl(name) {
+            return `${this.stylesUrl}/${name}`;
+        },
+        //#endregion
         getStepStatus(id) {
             if (id < this.currentStep) {
                 return "finish";
@@ -89,6 +149,24 @@ const App = {
                 }
                 this.model.selectedStep = newValue;
             }
+        },
+        sessionRootUrl() {
+            return `${this.apiUrl}/api/session`;
+        },
+        sessionUrl() {
+            return `${this.sessionRootUrl}/${this.sessionId}`;
+        },
+        videoUrl() {
+            return `${this.sessionUrl}/video`;
+        },
+        framesUrl() {
+            return `${this.sessionUrl}/frames`;
+        },
+        subtitlesUrl() {
+            return `${this.sessionUrl}/subtitles`;
+        },
+        stylesUrl() {
+            return `${this.sessionUrl}/styles`;
         },
     },
     mounted() {
