@@ -43,6 +43,8 @@ class DefaultStyleTransfer(StyleTransfer):
             shutil.copy(path, os.path.join(output_dir, name))
             result.frames.append(StyledFrame(name))
 
+        result.success = True
+
         return result
 
 
@@ -64,6 +66,8 @@ class WhiteBoxCartoonizationStyleTransfer(StyleTransfer):
             wbc.transfer(path, output)
 
             result.frames.append(StyledFrame(name))
+
+        result.success = True
 
         return result
 

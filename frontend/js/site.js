@@ -55,6 +55,9 @@ const App = {
                             name: "",
                             time: 0
                         }
+                    },
+                    info: {
+                        enable: false
                     }
                 },
                 subtitles: {
@@ -64,6 +67,9 @@ const App = {
                         log: "",
                         duration: 0,
                         subtitles: [],
+                    },
+                    info: {
+                        enable: false
                     }
                 },
                 styles: {
@@ -79,6 +85,9 @@ const App = {
                         frame: {
                             name: "",
                         }
+                    },
+                    info: {
+                        enable: false
                     }
                 }
             }
@@ -148,17 +157,32 @@ const App = {
         },
         //#endregion
         onWorkFrames() {
-            this.workFrames();
+            if (this.state < this.states.AfterFrame) {
+                this.workFrames();
+            }
+            else {
+                this.pages.frames.info.enable = true;
+            }
         },
         onPreviewFrame(frame) {
             this.pages.frames.preview.frame = frame;
             this.pages.frames.preview.enable = true;
         },
         onWorkSubtitles() {
-            this.workSubtitles();
+            if (this.state < this.states.AfterSubtitle) {
+                this.workSubtitles();
+            }
+            else {
+                this.pages.subtitles.info.enable = true;
+            }
         },
         onWorkStyles() {
-            this.workStyles();
+            if (this.state < this.states.AfterStyle) {
+                this.workStyles();
+            }
+            else {
+                this.pages.styles.info.enable = true;
+            }
         },
         onPreviewStyledFrame(frame) {
             this.pages.styles.preview.frame = frame;
@@ -173,10 +197,18 @@ const App = {
             await fetch(this.framesUrl, settings).then(res => res.text()).then(text => {
                 console.log(text);
             });
+            this.$notification.info({ message: "Start frame extracting." });
         },
         async resultFrames() {
             let result = await fetch(this.framesUrl).then(res => res.json());
             this.pages.frames.result = result;
+            let noti = { message: "Frame extracting finished." }
+            if (result.success) {
+                this.$notification.success(noti);
+            }
+            else {
+                this.$notification.error(noti);
+            }
         },
         frameImageUrl(name) {
             return `${this.framesUrl}/${name}`;
@@ -193,10 +225,18 @@ const App = {
             await fetch(this.subtitlesUrl, settings).then(res => res.text()).then(text => {
                 console.log(text);
             });
+            this.$notification.info({ message: "Start subtitle generating." });
         },
         async resultSubtitles() {
             let result = await fetch(this.subtitlesUrl).then(res => res.json());
             this.pages.subtitles.result = result;
+            let noti = { message: "Subtitle generating finished." }
+            if (result.success) {
+                this.$notification.success(noti);
+            }
+            else {
+                this.$notification.error(noti);
+            }
         },
         //#endregion
         //#region styles
@@ -207,10 +247,18 @@ const App = {
             await fetch(this.stylesUrl, settings).then(res => res.text()).then(text => {
                 console.log(text);
             });
+            this.$notification.info({ message: "Start style transferring." });
         },
         async resultStyles() {
             let result = await fetch(this.stylesUrl).then(res => res.json());
             this.pages.styles.result = result;
+            let noti = { message: "Style transferring finished." }
+            if (result.success) {
+                this.$notification.success(noti);
+            }
+            else {
+                this.$notification.error(noti);
+            }
         },
         styledImageUrl(name) {
             return `${this.stylesUrl}/${name}`;

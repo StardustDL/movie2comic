@@ -84,8 +84,6 @@
 											</div>
 										</a-space>
 
-
-
 									</div>
 									<div v-else>
 										Your session ID is {{ sessionId }}
@@ -96,9 +94,9 @@
 								</div>
 								<div v-show="selectedStage == stages.Frame">
 									<a-space direction="vertical" style="width: 100%;">
-										<a-button @click="onWorkFrames" size="large" :disabled="state >= states.OnFrame"
-											style="width: 100%;">
-											Extract
+										<a-button @click="onWorkFrames" size="large" style="width: 100%;"
+											:loading="state == states.OnFrame" :disabled="state == states.OnFrame">
+											{{ state > states.OnFrame ? "Information" : "Extract"}}
 										</a-button>
 										<a-card title="Frames">
 											<a-card-grid v-for="frame in pages.frames.result.frames"
@@ -108,6 +106,13 @@
 												</a-card-meta>
 											</a-card-grid>
 										</a-card>
+										<a-drawer title="Frame Extracting Result" placement="right" :closable="false"
+											width="512" v-model:visible="pages.frames.info.enable">
+											<a-result :status="pages.frames.result.success ? 'success' : 'error'"
+												:title="readableSecondTimeString(pages.frames.result.duration)"
+												:sub-title="pages.frames.result.log">
+											</a-result>
+										</a-drawer>
 									</a-space>
 									<a-modal width="1080px" v-model:visible="pages.frames.preview.enable"
 										:title="`${pages.frames.preview.frame.name} ${readableSecondTimeString(pages.frames.preview.frame.time)}`"
@@ -118,17 +123,25 @@
 								</div>
 								<div v-show="selectedStage == stages.Subtitle">
 									<a-space direction="vertical" style="width: 100%;">
-										<a-button @click="onWorkSubtitles" size="large"
-											:disabled="state >= states.OnSubtitle" style="width: 100%;">
-											Generate
+										<a-button @click="onWorkSubtitles" size="large" style="width: 100%;"
+											:loading="state == states.OnSubtitle"
+											:disabled="state == states.OnSubtitle">
+											{{ state > states.OnSubtitle ? "Information" : "Generate"}}
 										</a-button>
 									</a-space>
+									<a-drawer title="Subtitles Generating Result" placement="right" :closable="false"
+										width="512" v-model:visible="pages.subtitles.info.enable">
+										<a-result :status="pages.subtitles.result.success ? 'success' : 'error'"
+											:title="readableSecondTimeString(pages.subtitles.result.duration)"
+											:sub-title="pages.subtitles.result.log">
+										</a-result>
+									</a-drawer>
 								</div>
 								<div v-show="selectedStage == stages.Style">
 									<a-space direction="vertical" style="width: 100%;">
-										<a-button @click="onWorkStyles" size="large" :disabled="state >= states.OnStyle"
-											style="width: 100%;">
-											Transfer
+										<a-button @click="onWorkStyles" size="large" style="width: 100%;"
+											:loading="state == states.OnStyle" :disabled="state == states.OnStyle">
+											{{ state > states.OnStyle ? "Information" : "Transfer"}}
 										</a-button>
 										<a-card title="Styled Frames">
 											<a-card-grid v-for="frame in pages.styles.result.frames"
@@ -143,6 +156,13 @@
 										<img :src="styledFrameImageUrl(pages.styles.preview.frame.name)"
 											style="width: 100%" />
 									</a-modal>
+									<a-drawer title="Style Transferring Result" placement="right" :closable="false"
+										width="512" v-model:visible="pages.styles.info.enable">
+										<a-result :status="pages.styles.result.success ? 'success' : 'error'"
+											:title="readableSecondTimeString(pages.styles.result.duration)"
+											:sub-title="pages.styles.result.log">
+										</a-result>
+									</a-drawer>
 								</div>
 								<div v-show="selectedStage == stages.Output">
 									Comic
