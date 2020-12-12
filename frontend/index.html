@@ -131,16 +131,8 @@
 									</a-space>
 									<a-modal width="1080px" v-model:visible="pages.styles.preview.enable"
 										:title="`${pages.styles.preview.frame.name}`" :footer="null">
-										<a-space>
-											<a-card title="Original" style="width: 100%">
-												<img :src="frameImageUrl(pages.styles.preview.frame.name)"
-													style="width: 100%" />
-											</a-card>
-											<a-card title="Styled" style="width: 100%">
-												<img :src="styledFrameImageUrl(pages.styles.preview.frame.name)"
-													style="width: 100%" />
-											</a-card>
-										</a-space>
+										<img :src="styledFrameImageUrl(pages.styles.preview.frame.name)"
+											style="width: 100%" />
 									</a-modal>
 								</div>
 								<div v-show="selectedStage == stages.Output">

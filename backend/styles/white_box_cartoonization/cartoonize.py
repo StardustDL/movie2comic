@@ -1,0 +1,70 @@
+try:
+    import tensorflow.compat.v1 as tf
+except ImportError:
+    import tensorflow as tf
+
+import os
+import cv2
+import numpy as np
+from . import network
+from . import guided_filter
+
+
+def resize_crop(image):
+    h, w, c = np.shape(image)
+    if min(h, w) > 720:
+        if h > w:
+            h, w = int(720*h/w), 720
+        else:
+            h, w = 720, int(720*w/h)
+    image = cv2.resize(image, (w, h),
+                       interpolation=cv2.INTER_AREA)
+    h, w = (h//8)*8, (w//8)*8
+    image = image[:h, :w, :]
+    return image
+
+
+class Cartoonizer:
+    def __init__(self):
+        self.root_path = os.path.dirname(os.path.realpath(__file__))
+
+    def load_model(self):
+        model_path = os.path.join(self.root_path, "saved_models")
+
+        try:
+            tf.disable_eager_execution()
+        except:
+            None
+
+        tf.reset_default_graph()
+
+        input_photo = tf.placeholder(tf.float32, [1, None, None, 3])
+        network_out = network.unet_generator(input_photo)
+        final_out = guided_filter.guided_filter(
+            input_photo, network_out, r=1, eps=5e-3)
+
+        all_vars = tf.trainable_variables()
+        gene_vars = [var for var in all_vars if 'generator' in var.name]
+        saver = tf.train.Saver(var_list=gene_vars)
+
+        config = tf.ConfigProto()
+        config.gpu_options.allow_growth = True
+        sess = tf.Session(config=config)
+
+        sess.run(tf.global_variables_initializer())
+        saver.restore(sess, tf.train.latest_checkpoint(model_path))
+
+        self.sess = sess
+        self.final_out = final_out
+        self.input_photo = input_photo
+
+    def transfer(self, input_file, output_file):
+        image = cv2.imread(input_file)
+        image = resize_crop(image)
+        batch_image = image.astype(np.float32)/127.5 - 1
+        batch_image = np.expand_dims(batch_image, axis=0)
+        output = self.sess.run(self.final_out, feed_dict={
+                               self.input_photo: batch_image})
+        output = (np.squeeze(output)+1)*127.5
+        output = np.clip(output, 0, 255).astype(np.uint8)
+        cv2.imwrite(output_file, output)

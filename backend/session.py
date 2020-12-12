@@ -178,8 +178,8 @@ class Session:
             return False
 
         if worker is None:
-            from .styles.transfer import DefaultStyleTransfer
-            worker = DefaultStyleTransfer()
+            from .styles.transfer import WhiteBoxCartoonizationStyleTransfer
+            worker = WhiteBoxCartoonizationStyleTransfer()
 
         os.mkdir(self.style_dir)
 

@@ -46,6 +46,28 @@ class DefaultStyleTransfer(StyleTransfer):
         return result
 
 
+class WhiteBoxCartoonizationStyleTransfer(StyleTransfer):
+    def __init__(self):
+        super().__init__()
+
+    def transfer_frames(self, input_file_path_list, output_dir) -> StyleStageResult:
+        result = StyleStageResult()
+
+        from .white_box_cartoonization import cartoonize
+        wbc = cartoonize.Cartoonizer()
+
+        wbc.load_model()
+
+        for name, path in input_file_path_list:
+            output = os.path.join(output_dir, name)
+
+            wbc.transfer(path, output)
+
+            result.frames.append(StyledFrame(name))
+
+        return result
+
+
 if __name__ == "__main__":
     from ..settings import DATA_PATH
 
