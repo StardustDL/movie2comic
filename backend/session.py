@@ -30,17 +30,17 @@ class SessionStage(IntEnum):
 
 
 class SessionState(IntEnum):
-    AfterCreate = 0
-    AfterInitialize = 1
-    OnInput = 2
-    AfterInput = 3
-    OnFrame = 4
-    AfterFrame = 5
-    OnSubtitle = 6
-    AfterSubtitle = 7
-    OnStyle = 8
-    AfterStyle = 9
-    OnOutput = 10
+    AfterCreate = 0,
+    AfterInitialize = 1,
+    OnInput = 2,
+    AfterInput = 3,
+    OnFrame = 4,
+    AfterFrame = 5,
+    OnSubtitle = 6,
+    AfterSubtitle = 7,
+    OnStyle = 8,
+    AfterStyle = 9,
+    OnOutput = 10,
     AfterOutput = 11
 
 
