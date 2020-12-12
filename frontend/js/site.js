@@ -71,6 +71,12 @@ const App = {
                         log: "",
                         duration: 0,
                         frames: [],
+                    },
+                    preview: {
+                        enable: false,
+                        frame: {
+                            name: "",
+                        }
                     }
                 }
             }
@@ -96,6 +102,16 @@ const App = {
                     this.resultStyles();
                 }
             }
+        },
+        getStageStatus(id) {
+            let ps = this.processStage;
+            if (id < ps) {
+                return "finish";
+            }
+            else if (id == ps) {
+                return "process";
+            }
+            return "wait";
         },
         readableSecondTimeString(value) {
             let minute = Math.floor(value / 60);
@@ -132,6 +148,17 @@ const App = {
             this.pages.frames.preview.frame = frame;
             this.pages.frames.preview.enable = true;
         },
+        onWorkSubtitles() {
+            this.workSubtitles();
+        },
+        onWorkStyles() {
+            this.workStyles();
+        },
+        onPreviewStyledFrame(frame) {
+            this.pages.styles.preview.frame = frame;
+            this.pages.styles.preview.enable = true;
+        },
+        //#region libs
         //#region frames
         async workFrames() {
             let settings = {
@@ -147,6 +174,9 @@ const App = {
         },
         frameImageUrl(name) {
             return `${this.framesUrl}/${name}`;
+        },
+        styledFrameImageUrl(name) {
+            return `${this.stylesUrl}/${name}`;
         },
         //#endregion
         //#region subtitles
@@ -180,16 +210,7 @@ const App = {
             return `${this.stylesUrl}/${name}`;
         },
         //#endregion
-        getStageStatus(id) {
-            let ps = this.processStage;
-            if (id < ps) {
-                return "finish";
-            }
-            else if (id == ps) {
-                return "process";
-            }
-            return "wait";
-        },
+        //#endregion
     },
     computed: {
         processStage() {
@@ -205,10 +226,6 @@ const App = {
                 return this.model.selectedStage >= 0 ? this.model.selectedStage : 0;
             },
             set(newValue) {
-                if (newValue > this.processStage) {
-                    this.$message.warning('Please complete this step first.');
-                    newValue = this.processStage;
-                }
                 this.model.selectedStage = newValue;
             }
         },

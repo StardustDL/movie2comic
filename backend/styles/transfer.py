@@ -8,6 +8,7 @@ import json
 from ..model import StageResult
 from .model import StyledFrame, StyleStageResult
 from ..worker import StageWorker
+import shutil
 
 
 class StyleTransfer(StageWorker):
@@ -36,7 +37,13 @@ class DefaultStyleTransfer(StyleTransfer):
         super().__init__()
 
     def transfer_frames(self, input_file_path_list, output_dir) -> StyleStageResult:
-        return StyleStageResult()
+        result = StyleStageResult()
+
+        for name, path in input_file_path_list:
+            shutil.copy(path, os.path.join(output_dir, name))
+            result.frames.append(StyledFrame(name))
+
+        return result
 
 
 if __name__ == "__main__":

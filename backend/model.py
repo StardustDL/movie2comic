@@ -5,6 +5,8 @@ class StageResult(PropertySerializable):
     def __init__(self, name: str = "", success: bool = False, duration: float = 0, log: str = ""):
         self.name = name
         self.duration = duration
+        self.log = log
+        self.success = success
 
     @property
     def name(self) -> str:
