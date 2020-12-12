@@ -86,7 +86,7 @@
 									<video v-if="!!sessionId" controls :src="videoUrl" style="width: 100%;"></video>
 								</div>
 								<div v-show="selectedStage == stages.Frame">
-									<a-space direction="vertical">
+									<a-space direction="vertical" style="width: 100%;">
 										<a-button @click="onWorkFrames" size="large" :disabled="state >= states.OnFrame"
 											style="width: 100%;">
 											Extract
@@ -108,7 +108,7 @@
 									</a-modal>
 								</div>
 								<div v-show="selectedStage == stages.Subtitle">
-									<a-space direction="vertical">
+									<a-space direction="vertical" style="width: 100%;">
 										<a-button @click="onWorkSubtitles" size="large"
 											:disabled="state >= states.OnSubtitle" style="width: 100%;">
 											Generate
@@ -116,7 +116,7 @@
 									</a-space>
 								</div>
 								<div v-show="selectedStage == stages.Style">
-									<a-space direction="vertical">
+									<a-space direction="vertical" style="width: 100%;">
 										<a-button @click="onWorkStyles" size="large" :disabled="state >= states.OnStyle"
 											style="width: 100%;">
 											Transfer
