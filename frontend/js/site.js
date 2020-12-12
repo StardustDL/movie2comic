@@ -27,8 +27,8 @@ const App = {
                 AfterOutput: 11
             },
             apiUrl: PREPURL,
-            // sessionId: null,
-            sessionId: "c28f9a15-3c6f-11eb-bfe3-c83dd4eac83a", // DEBUG
+            sessionId: null,
+            // sessionId: "43c79b3e-3c92-11eb-9892-0242ac170002", // DEBUG
             stage: 0,
             state: 0,
             model: {
@@ -116,11 +116,11 @@ const App = {
         },
         getStageStatus(id) {
             let ps = this.processStage;
-            if (id < ps) {
-                return "finish";
-            }
-            else if (id == ps) {
+            if (id == ps || id == this.stages.Create && ps == this.stages.Input) {
                 return "process";
+            }
+            else if (id < ps) {
+                return "finish";
             }
             return "wait";
         },
@@ -278,9 +278,19 @@ const App = {
         selectedStage: {
             get() {
                 return this.model.selectedStage >= 0 ? this.model.selectedStage : 0;
+            }
+        },
+        selectedStep: {
+            get() {
+                return this.model.selectedStage > 1 ? this.model.selectedStage - 1 : 0;
             },
             set(newValue) {
-                this.model.selectedStage = newValue;
+                if (newValue > 0) { // not start
+                    this.model.selectedStage = newValue + 1;
+                }
+                else {
+                    this.model.selectedStage = newValue;
+                }
             }
         },
         sessionRootUrl() {

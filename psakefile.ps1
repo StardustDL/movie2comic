@@ -1,9 +1,15 @@
 Task f -depends frontend
 
-Task b -depends backend-dev
+Task b -depends backend
+
+Task bd -depends backend-dev
 
 Task backend-dev {
     Exec { python -m backend }
+}
+
+Task backend {
+    docker-compose -f .\docker-compose.dev.yml up backend
 }
 
 Task frontend {

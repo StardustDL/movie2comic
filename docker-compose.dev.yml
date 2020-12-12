@@ -16,6 +16,10 @@ services:
       context: .
       dockerfile: Dockerfile.backend.dev
     ports:
-      - "5050:5000"
+      - "5050:5050"
     volumes:
       - ./backend:/app
+    entrypoint:
+      - "python"
+      - "-m"
+      - "app"

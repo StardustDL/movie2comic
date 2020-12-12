@@ -23,12 +23,9 @@
 				<a-row type="flex" justify="center" align="top">
 					<a-col :span="18">
 						<a-space direction="vertical" style="width: 100%;">
-							<a-steps v-model:current="selectedStage" type="navigation">
+							<a-steps v-model:current="selectedStep" type="navigation">
 								<a-step :status="getStageStatus(stages.Create)" title="Start"
 									description="Create project">
-								</a-step>
-								<a-step :status="getStageStatus(stages.Input)" title="Movie" description="Preview movie"
-									:disabled="stages.Input > processStage">
 								</a-step>
 								<a-step :status="getStageStatus(stages.Frame)" title="Keyframes"
 									description="Extract frames" :disabled="stages.Frame > processStage">
@@ -44,7 +41,7 @@
 								</a-step>
 							</a-steps>
 							<div>
-								<div v-show="selectedStage == stages.Create">
+								<div v-show="selectedStage == stages.Create || selectedStage == stages.Input">
 									<div v-if="!sessionId">
 										<a-space direction="vertical" style="width: 100%;">
 											<a-space>
@@ -87,10 +84,9 @@
 									</div>
 									<div v-else>
 										Your session ID is {{ sessionId }}
+										<br />
+										<video v-if="!!sessionId" controls :src="videoUrl" style="width: 100%;"></video>
 									</div>
-								</div>
-								<div v-show="selectedStage == stages.Input">
-									<video v-if="!!sessionId" controls :src="videoUrl" style="width: 100%;"></video>
 								</div>
 								<div v-show="selectedStage == stages.Frame">
 									<a-space direction="vertical" style="width: 100%;">
@@ -128,6 +124,14 @@
 											:disabled="state == states.OnSubtitle">
 											{{ state > states.OnSubtitle ? "Information" : "Generate"}}
 										</a-button>
+										<a-card title="Subtitles">
+											<a-card-grid v-for="subtitle in pages.subtitles.result.subtitles"
+												style="width:25%;text-align:center">
+												<a-card-meta :title="subtitle.text"
+													:description="`${readableSecondTimeString(subtitle.start)} ~ ${readableSecondTimeString(subtitle.end)}`">
+												</a-card-meta>
+											</a-card-grid>
+										</a-card>
 										<a-list item-layout="horizontal">
 											<a-list-item v-for="subtitle in pages.subtitles.result.subtitles">
 												<a-list-item-meta :title="subtitle.text"

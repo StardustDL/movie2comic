@@ -4,6 +4,7 @@ import time
 from typing import List, Tuple
 import ffmpeg
 import wave
+import subprocess
 import contextlib
 import os
 import json
@@ -29,13 +30,16 @@ class SubtitleGenerator(StageWorker):
         stream = ffmpeg.input(self.session.video_file)
         audio_file = os.path.join(self.session.subtitle_dir, "audio.wav")
 
+        stream = stream.audio.output(audio_file, format="wav")
+
         success = True
 
         out, err = b"", b""
         try:
             out, err = stream.run(capture_stdout=True, capture_stderr=True)
-        except:
+        except Exception as ex:
             success = False
+            out += str(ex).encode("utf-8")
 
         if success:
             result = self.get_subtitles(audio_file, self.session.subtitle_dir)
@@ -52,7 +56,28 @@ class DefaultSubtitleGenerator(SubtitleGenerator):
         super().__init__()
 
     def get_subtitles(self, input_file_path, output_dir) -> SubtitleStageResult:
+        model_root = os.path.join(os.path.dirname(
+            os.path.realpath(__file__)), "deepspeech", "models")
+
+        from .deepspeech import process_audio
+
         result = SubtitleStageResult()
+
+        try:
+
+            raw = process_audio(input_file_path,
+                                os.path.join(
+                                    model_root, "deepspeech-0.9.3-models.pbmm"),
+                                os.path.join(model_root, "deepspeech-0.9.3-models.scorer"))
+
+            for w in raw:
+                result.subtitles.append(
+                    Subtitle(w["word"], w["start_time"], w["start_time"] + w["duration"]))
+        except Exception as ex:
+            result.log = str(ex)
+
+        result.success = True
+
         return result
 
 
