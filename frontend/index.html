@@ -128,6 +128,13 @@
 											:disabled="state == states.OnSubtitle">
 											{{ state > states.OnSubtitle ? "Information" : "Generate"}}
 										</a-button>
+										<a-list item-layout="horizontal">
+											<a-list-item v-for="subtitle in pages.subtitles.result.subtitles">
+												<a-list-item-meta :title="subtitle.text"
+													:description="`${readableSecondTimeString(subtitle.start)} ~ ${readableSecondTimeString(subtitle.end)}`">
+												</a-list-item-meta>
+											</a-list-item>
+										</a-list>
 									</a-space>
 									<a-drawer title="Subtitles Generating Result" placement="right" :closable="false"
 										width="512" v-model:visible="pages.subtitles.info.enable">

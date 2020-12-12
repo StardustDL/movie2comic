@@ -14,6 +14,6 @@ COPY ./requirements.txt /requirements.txt
 RUN python3 -m pip install -r requirements.txt
 
 COPY ./backend /app
-WORKDIR /app
+WORKDIR /
 
-ENTRYPOINT [ "gunicorn", "-b", "0.0.0.0:5000", "-w", "4", "api:app" ]
+ENTRYPOINT [ "gunicorn", "-b", "0.0.0.0:5000", "-w", "4", "app:app" ]

@@ -1,4 +1,4 @@
-from backend import serialization
+from . import serialization
 import json
 import os
 from flask import Flask, request, make_response

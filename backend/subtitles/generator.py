@@ -3,6 +3,8 @@ import sys
 import time
 from typing import List, Tuple
 import ffmpeg
+import wave
+import contextlib
 import os
 import json
 from pocketsphinx import AudioFile
@@ -35,10 +37,10 @@ class DefaultSubtitleGenerator(SubtitleGenerator):
         stream = ffmpeg.input(input_file_path)
         audio_file = os.path.join(output_dir, "audio.wav")
 
-        info = ffmpeg.probe(input_file_path, v="quiet", select_streams="v")
-        fps_str = info["streams"][0]["r_frame_rate"]
+        # info = ffmpeg.probe(input_file_path, v="quiet", select_streams="v")
+        # fps_str = info["streams"][0]["r_frame_rate"]
 
-        fps = int(fps_str.split('/')[0])
+        fps = 100
 
         stream = stream.audio.output(audio_file, format="wav")
 
@@ -51,21 +53,30 @@ class DefaultSubtitleGenerator(SubtitleGenerator):
             success = False
 
         phrases = []
+        log = ""
 
         if success:
-            for phrase in AudioFile(audio_file=audio_file, frate=fps):
+            with contextlib.closing(wave.open(audio_file, 'r')) as f:
+                rate = f.getframerate()
+                frames = f.getnframes()
+                duration = frames / float(rate)
+                log += f"rate: {rate}, frames: {frames}, duration: {duration}"
+            
+            for phrase in AudioFile(audio_file=audio_file):
                 start = sys.maxsize
                 end = 0
                 for seg in phrase.seg():
                     start = min(start, seg.start_frame)
                     end = max(end, seg.end_frame)
 
+                log += f"{phrase}: {start}~{end}\n"
+
                 phrases.append(Subtitle(str(phrase), start /
-                                        float(fps), end / float(fps)))
+                                        float(rate), end / float(rate)))
 
         result = SubtitleStageResult()
         result.success = success
-        result.log = f"stdout: {out}\nstderr: {err}"
+        result.log = log + "\n" + f"stdout: {out}\nstderr: {err}"
         result.subtitles = phrases
         return result
 

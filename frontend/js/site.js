@@ -28,7 +28,7 @@ const App = {
             },
             apiUrl: PREPURL,
             // sessionId: null,
-            sessionId: "59a999a0-3c36-11eb-9ac1-c83dd4eac83a", // DEBUG
+            sessionId: "c28f9a15-3c6f-11eb-bfe3-c83dd4eac83a", // DEBUG
             stage: 0,
             state: 0,
             model: {

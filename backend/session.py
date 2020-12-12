@@ -1,9 +1,9 @@
-from backend.styles.model import StyleStageResult
-from backend.styles.transfer import StyleTransfer
-from backend.subtitles.model import SubtitleStageResult
-from backend.subtitles.generator import SubtitleGenerator
-from backend.frames.extractor import FrameExtractor
-from backend.frames.model import FrameStageResult
+from .styles.model import StyleStageResult
+from .styles.transfer import StyleTransfer
+from .subtitles.model import SubtitleStageResult
+from .subtitles.generator import SubtitleGenerator
+from .frames.extractor import FrameExtractor
+from .frames.model import FrameStageResult
 import os
 from typing import Callable, Optional
 import uuid
