@@ -4,9 +4,10 @@ from ..model import StageResult
 
 
 class Subtitle(PropertySerializable):
-    def __init__(self, text: str = "", time: float = 0.0):
+    def __init__(self, text: str = "", start: float = 0.0, end: float = 0.0):
         self.text = text
-        self.time = time
+        self.start = start
+        self.end = end
 
     @property
     def text(self) -> str:
@@ -17,12 +18,20 @@ class Subtitle(PropertySerializable):
         self._text = value
 
     @property
-    def time(self) -> float:
-        return self._time
+    def start(self) -> float:
+        return self._start
 
-    @time.setter
-    def time(self, value: float) -> None:
-        self._time = value
+    @start.setter
+    def start(self, value: float) -> None:
+        self._start = value
+
+    @property
+    def end(self) -> float:
+        return self._end
+
+    @end.setter
+    def end(self, value: float) -> None:
+        self._end = value
 
 
 class SubtitleStageResult(StageResult):
@@ -40,6 +49,6 @@ class SubtitleStageResult(StageResult):
 
     def as_dict(self):
         dic = super().as_dict()
-        dic["subtitles"] = [{"text": fr.text, "time": fr.time}
+        dic["subtitles"] = [{"text": fr.text, "start": fr.start, "end": fr.end}
                             for fr in self.subtitles]
         return dic

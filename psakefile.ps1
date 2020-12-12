@@ -7,5 +7,5 @@ Task backend-dev {
 }
 
 Task frontend {
-    Exec { docker-compose -f .\docker-compose.dev.yml up httpd }
+    Exec { docker-compose -f .\docker-compose.dev.yml up -d httpd }
 }

@@ -8,7 +8,8 @@ RUN sed -i 's/deb.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list && \
     libsm6 \
     libxext6 \
     libxrender-dev \
-    ffmpeg
+    ffmpeg \
+    build-essential swig git libpulse-dev libasound2-dev
 
 COPY ./requirements.txt /requirements.txt
 RUN python3 -m pip install -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com -r requirements.txt

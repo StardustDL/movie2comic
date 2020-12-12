@@ -27,8 +27,8 @@ const App = {
                 AfterOutput: 11
             },
             apiUrl: PREPURL,
-            sessionId: null,
-            // sessionId: "59a999a0-3c36-11eb-9ac1-c83dd4eac83a", // DEBUG
+            // sessionId: null,
+            sessionId: "59a999a0-3c36-11eb-9ac1-c83dd4eac83a", // DEBUG
             stage: 0,
             state: 0,
             model: {
