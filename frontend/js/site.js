@@ -33,11 +33,13 @@ const App = {
             state: 0,
             model: {
                 selectedStage: -1,
+                auto: false,
             },
             pages: {
                 start: {
                     type: 0,
                     sid: null,
+                    auto: false,
                 },
                 frames: {
                     result: {
@@ -132,6 +134,9 @@ const App = {
             }
             if (event.file.status === 'done') {
                 this.sessionId = event.file.response;
+                this.model.selectedStage = 0;
+                this.model.auto = this.pages.start.auto;
+                console.log(this.model.auto);
                 this.$message.success(`${event.file.name} file uploaded successfully`);
             } else if (event.file.status === 'error') {
                 this.$message.error(`${event.file.name} file upload failed.`);
@@ -139,6 +144,7 @@ const App = {
         },
         onStartExisted(event) {
             this.sessionId = this.pages.start.sid;
+            this.model.auto = this.pages.start.auto;
         },
         //#endregion
         onWorkFrames() {
@@ -252,6 +258,28 @@ const App = {
         setInterval(() => {
             if (this.sessionId != null) {
                 this.updateState();
+                if (this.model.auto) {
+                    switch (this.state) {
+                        case this.states.AfterInput:
+                            this.model.selectedStage = this.stages.Input;
+                            this.workFrames();
+                            break;
+                        case this.states.AfterFrame:
+                            this.model.selectedStage = this.stages.Frame;
+                            this.workSubtitles();
+                            break;
+                        case this.states.AfterSubtitle:
+                            this.model.selectedStage = this.stages.Subtitle;
+                            this.workStyles();
+                            break;
+                        case this.states.AfterStyle:
+                            this.model.selectedStage = this.stages.Style;
+                            break;
+                        case this.states.AfterOutput:
+                            this.model.auto = false;
+                            break;
+                    }
+                }
             }
         }, 2000);
     }

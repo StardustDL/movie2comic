@@ -46,36 +46,45 @@
 							<div>
 								<div v-show="selectedStage == stages.Create">
 									<div v-if="!sessionId">
-										<a-radio-group v-model:value="pages.start.type" button-style="solid"
-											size="large">
-											<a-radio-button :value="0">
-												New
-											</a-radio-button>
-											<a-radio-button :value="1">
-												Existed
-											</a-radio-button>
-										</a-radio-group>
-										<div style="margin-top: 12px">
-											<a-upload-dragger v-if="pages.start.type == 0" :action="sessionRootUrl"
-												name="file" @change="onStartNew">
-												<p class="ant-upload-drag-icon">
-													<span class="mdi mdi-upload" style="font-size:xx-large;"></span>
-												</p>
-												<p class="ant-upload-text">
-													Click or drag file to this area to upload
-												</p>
-												<p class="ant-upload-hint">
-													Only one video file is allowed.
-												</p>
-											</a-upload-dragger>
-											<div v-else>
-												<a-input placeholder="session ID" v-model:value="pages.start.sid">
-													<template v-slot:suffix>
-														<a-button type="primary" @click="onStartExisted">OK</a-button>
-													</template>
-												</a-input>
+										<a-space direction="vertical" style="width: 100%;">
+											<a-space>
+												<a-radio-group v-model:value="pages.start.type" button-style="solid"
+													size="large">
+													<a-radio-button :value="0">
+														New
+													</a-radio-button>
+													<a-radio-button :value="1">
+														Existed
+													</a-radio-button>
+												</a-radio-group>
+												<a-switch v-model:checked="pages.start.auto" checked-children="Auto"
+													un-checked-children="Manual" />
+											</a-space>
+											<div>
+												<a-upload-dragger v-if="pages.start.type == 0" :action="sessionRootUrl"
+													name="file" @change="onStartNew">
+													<p class="ant-upload-drag-icon">
+														<span class="mdi mdi-upload" style="font-size:xx-large;"></span>
+													</p>
+													<p class="ant-upload-text">
+														Click or drag file to this area to upload
+													</p>
+													<p class="ant-upload-hint">
+														Only one video file is allowed.
+													</p>
+												</a-upload-dragger>
+												<div v-else>
+													<a-input placeholder="session ID" v-model:value="pages.start.sid">
+														<template v-slot:suffix>
+															<a-button type="primary" @click="onStartExisted">OK
+															</a-button>
+														</template>
+													</a-input>
+												</div>
 											</div>
-										</div>
+										</a-space>
+
+
 
 									</div>
 									<div v-else>
