@@ -107,7 +107,7 @@ class SoundSpliter:
 class DefaultSubtitleGenerator(SubtitleGenerator):
     def __init__(self, is_zhcn=False):
         super().__init__()
-        self.is_zhcn = False
+        self.is_zhcn = is_zhcn
 
     def get_subtitles(self, input_file_path, output_dir) -> SubtitleStageResult:
 

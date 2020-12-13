@@ -62,13 +62,16 @@ class DefaultComicCombiner(ComicCombiner):
 
     def combine(self, frames: List[Frame], subtitles: List[Subtitle], styledFrames: List[StyledFrame], output_dir) -> ComicStageResult:
         OUTPUT_NAME = "output.jpg"
-        SEGMENT_DURATION = 5
+        FRAME_COUNT = 20
         WORD_IN_ONE_LINE = 10
 
-        info = ffmpeg.probe(self.session.video_file,
-                            select_streams="v")["streams"][0]
+        # duration minimum, multi page, frame count one page
+
+        info = ffmpeg.probe(self.session.video_file)["format"]
 
         duration = float(info["duration"])
+
+        segment_duration = duration / FRAME_COUNT
 
         frame_ind = 0
         subtitle_ind = 0
@@ -77,7 +80,7 @@ class DefaultComicCombiner(ComicCombiner):
         pieces = []
 
         while position < duration:
-            np = min(duration, position + SEGMENT_DURATION)
+            np = min(duration, position + segment_duration)
 
             select_frame = -1
 
@@ -130,7 +133,7 @@ class DefaultComicCombiner(ComicCombiner):
             if select_frame != -1:
                 pieces.append((select_frame, select_subtitle))
 
-            position += SEGMENT_DURATION
+            position += segment_duration
 
         images = []
 
