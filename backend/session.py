@@ -120,7 +120,10 @@ class Session:
 
     # region frame
 
-    def work_frames(self, worker: FrameExtractor = None) -> bool:
+    def work_frames(self, worker: FrameExtractor = None, redo=False) -> bool:
+        if redo and self.state() >= SessionState.AfterFrame:
+            shutil.rmtree(self.frame_dir)
+
         if self.state() != SessionState.OnFrame - 1:
             return False
 
@@ -151,7 +154,10 @@ class Session:
 
     # region subtitle
 
-    def work_subtitles(self, worker: SubtitleGenerator = None) -> bool:
+    def work_subtitles(self, worker: SubtitleGenerator = None, redo=False) -> bool:
+        if redo and self.state() >= SessionState.AfterSubtitle:
+            shutil.rmtree(self.subtitle_dir)
+
         if self.state() != SessionState.OnSubtitle - 1:
             return False
 
@@ -182,7 +188,10 @@ class Session:
 
     # region style
 
-    def work_styles(self, worker: StyleTransfer = None) -> bool:
+    def work_styles(self, worker: StyleTransfer = None, redo=False) -> bool:
+        if redo and self.state() >= SessionState.AfterStyle:
+            shutil.rmtree(self.style_dir)
+
         if self.state() != SessionState.OnStyle - 1:
             return False
 
@@ -213,7 +222,10 @@ class Session:
 
     # region comic
 
-    def work_comics(self, worker: ComicCombiner = None) -> bool:
+    def work_comics(self, worker: ComicCombiner = None, redo=False) -> bool:
+        if redo and self.state() >= SessionState.AfterOutput:
+            shutil.rmtree(self.output_dir)
+
         if self.state() != SessionState.OnOutput - 1:
             return False
 

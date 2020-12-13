@@ -47,9 +47,11 @@
 												<a-radio-group v-model:value="pages.start.type" button-style="solid"
 													size="large">
 													<a-radio-button :value="0">
+														<span class="mdi mdi-plus"></span>
 														New
 													</a-radio-button>
 													<a-radio-button :value="1">
+														<span class="mdi mdi-open-in-app"></span>
 														Existed
 													</a-radio-button>
 												</a-radio-group>
@@ -75,9 +77,11 @@
 															v-model:value="pages.start.sid">
 															<template v-slot:suffix>
 																<a-button type="primary" @click="onStartExisted">
+																	<span class="mdi mdi-check"></span>
 																	OK
 																</a-button>
-																<a-button type="success" @click="onRefreshSessionList">
+																<a-button @click="onRefreshSessionList">
+																	<span class="mdi mdi-refresh"></span>
 																	Refresh
 																</a-button>
 															</template>
@@ -97,9 +101,12 @@
 
 									</div>
 									<div v-else>
-										Your session ID is {{ sessionId }}
-										<br />
-										<video v-if="!!sessionId" controls :src="videoUrl" style="width: 100%;"></video>
+										<a-space direction="vertical" style="width: 100%;">
+											<a-input :value="sessionId" readonly addon-before="Session ID" size="large">
+											</a-input>
+											<video v-if="state >= states.AfterInput" controls :src="videoUrl"
+												style="width: 100%;"></video>
+										</a-space>
 									</div>
 								</div>
 								<div v-show="selectedStage == stages.Frame">
@@ -108,22 +115,36 @@
 											:loading="state == states.OnFrame" :disabled="state == states.OnFrame">
 											{{ state > states.OnFrame ? "Information" : "Extract"}}
 										</a-button>
-										<a-card title="Frames">
+										<a-card>
+											<template v-slot:title>
+												<span class="mdi mdi-image-multiple"></span>
+												Frames
+											</template>
 											<a-card-grid v-for="frame in pages.frames.result.frames"
 												@click="onPreviewFrame(frame)" style="width:25%;text-align:center">
 												<img :src="frameImageUrl(frame.name)" style="width: 100%" />
-												<a-card-meta :title="readableSecondTimeString(frame.time)">
+												<a-card-meta :title="frame.name">
+													<template v-slot:description>
+														<span class="mdi mdi-clock"></span>
+														{{ readableSecondTimeString(frame.time) }}
+													</template>
 												</a-card-meta>
 											</a-card-grid>
 										</a-card>
-										<a-drawer title="Frame Extracting Result" placement="right" :closable="false"
-											width="512" v-model:visible="pages.frames.info.enable">
-											<a-result :status="pages.frames.result.success ? 'success' : 'error'"
-												:title="readableSecondTimeString(pages.frames.result.duration)"
-												:sub-title="pages.frames.result.log">
-											</a-result>
-										</a-drawer>
 									</a-space>
+									<a-drawer title="Frame Extracting Result" placement="right" :closable="false"
+										width="512" v-model:visible="pages.frames.info.enable">
+										<a-result :status="pages.frames.result.success ? 'success' : 'error'"
+											:title="readableSecondTimeString(pages.frames.result.duration)"
+											:sub-title="pages.frames.result.log">
+											<template v-slot:extra>
+												<a-button @click="onRedoFrames">
+													<span class="mdi mdi-refresh"></span>
+													Redo
+												</a-button>
+											</template>
+										</a-result>
+									</a-drawer>
 									<a-modal width="1080px" v-model:visible="pages.frames.preview.enable"
 										:title="`${pages.frames.preview.frame.name} ${readableSecondTimeString(pages.frames.preview.frame.time)}`"
 										:footer="null">
@@ -141,15 +162,22 @@
 
 										<div style="text-align: right;">
 											<a-switch v-model:checked="pages.subtitles.isZhcn" checked-children="zh-CN"
-												un-checked-children="en-US" :disabled="state >= states.OnSubtitle" />
+												un-checked-children="en-US" />
 										</div>
 
-
-										<a-card title="Subtitles">
+										<a-card>
+											<template v-slot:title>
+												<span class="mdi mdi-subtitles"></span>
+												Subtitles
+											</template>
 											<a-card-grid v-for="subtitle in pages.subtitles.result.subtitles"
 												@click="onPreviewSubtitle(subtitle)" style="width:100%;">
-												<a-card-meta :title="subtitle.text"
-													:description="`${readableSecondTimeString(subtitle.start)} ~ ${readableSecondTimeString(subtitle.end)}`">
+												<a-card-meta :title="subtitle.text">
+													<template v-slot:description>
+														<span class="mdi mdi-clock"></span>
+														{{ readableSecondTimeString(subtitle.start) }} ~ {{
+														readableSecondTimeString(subtitle.end) }}
+													</template>
 												</a-card-meta>
 											</a-card-grid>
 										</a-card>
@@ -167,6 +195,12 @@
 										<a-result :status="pages.subtitles.result.success ? 'success' : 'error'"
 											:title="readableSecondTimeString(pages.subtitles.result.duration)"
 											:sub-title="pages.subtitles.result.log">
+											<template v-slot:extra>
+												<a-button @click="onRedoSubtitles">
+													<span class="mdi mdi-refresh"></span>
+													Redo
+												</a-button>
+											</template>
 										</a-result>
 									</a-drawer>
 								</div>
@@ -176,11 +210,17 @@
 											:loading="state == states.OnStyle" :disabled="state == states.OnStyle">
 											{{ state > states.OnStyle ? "Information" : "Transfer"}}
 										</a-button>
-										<a-card title="Styled Frames">
+										<a-card>
+											<template v-slot:title>
+												<span class="mdi mdi-flower"></span>
+												Styled Frames
+											</template>
 											<a-card-grid v-for="frame in pages.styles.result.frames"
 												@click="onPreviewStyledFrame(frame)"
 												style="width:25%;text-align:center">
 												<img :src="styledFrameImageUrl(frame.name)" style="width: 100%" />
+												<a-card-meta :title="frame.name">
+												</a-card-meta>
 											</a-card-grid>
 										</a-card>
 									</a-space>
@@ -194,6 +234,12 @@
 										<a-result :status="pages.styles.result.success ? 'success' : 'error'"
 											:title="readableSecondTimeString(pages.styles.result.duration)"
 											:sub-title="pages.styles.result.log">
+											<template v-slot:extra>
+												<a-button @click="onRedoStyles">
+													<span class="mdi mdi-refresh"></span>
+													Redo
+												</a-button>
+											</template>
 										</a-result>
 									</a-drawer>
 								</div>
@@ -203,7 +249,11 @@
 											:loading="state == states.OnOutput" :disabled="state == states.OnOutput">
 											{{ state > states.OnOutput ? "Information" : "Combine"}}
 										</a-button>
-										<a-card title="Comic">
+										<a-card>
+											<template v-slot:title>
+												<span class="mdi mdi-image"></span>
+												Comic
+											</template>
 											<img :src="comicsFileUrl(pages.comics.result.file)" style="width: 100%" />
 										</a-card>
 									</a-space>
@@ -212,6 +262,12 @@
 										<a-result :status="pages.comics.result.success ? 'success' : 'error'"
 											:title="readableSecondTimeString(pages.comics.result.duration)"
 											:sub-title="pages.comics.result.log">
+											<template v-slot:extra>
+												<a-button @click="onRedoComics">
+													<span class="mdi mdi-refresh"></span>
+													Redo
+												</a-button>
+											</template>
 										</a-result>
 									</a-drawer>
 								</div>

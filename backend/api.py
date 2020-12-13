@@ -24,6 +24,12 @@ def ok_json(obj):
     return json.dumps(obj, cls=Encoder), 200, {"Content-Type": "application/json"}
 
 
+def get_flag(data, name):
+    if data.get(name):
+        return True
+    return False
+
+
 @app.route('/api/session/all', methods=['GET'])
 def get_all_session():
     sids = []
@@ -73,8 +79,11 @@ def get_video(sid):
 
 @app.route('/api/session/<sid>/frames', methods=['PUT'])
 def work_frames(sid):
+    data = request.get_json()
+    redo = get_flag(data, "redo")
+
     session = Session(sid)
-    if session.work_frames():
+    if session.work_frames(redo=redo):
         return ok_string(session.id)
     return notfound()
 
@@ -104,17 +113,16 @@ def frame_image_path(sid, name):
 
 @app.route('/api/session/<sid>/subtitles', methods=['PUT'])
 def work_subtitles(sid):
-    session = Session(sid)
     data = request.get_json()
+    redo = get_flag(data, "redo")
+    isZhcn = get_flag(data, "isZhcn")
 
-    isZhcn = False
-    if data.get("isZhcn"):
-        isZhcn = True
+    session = Session(sid)
 
     from .subtitles.generator import DefaultSubtitleGenerator
     worker = DefaultSubtitleGenerator(isZhcn)
 
-    if session.work_subtitles(worker):
+    if session.work_subtitles(worker, redo=redo):
         return ok_string(session.id)
     return notfound()
 
@@ -144,8 +152,11 @@ def subtitle_audio_path(sid, name):
 
 @app.route('/api/session/<sid>/styles', methods=['PUT'])
 def work_styles(sid):
+    data = request.get_json()
+    redo = get_flag(data, "redo")
+
     session = Session(sid)
-    if session.work_styles():
+    if session.work_styles(redo=redo):
         return ok_string(session.id)
     return notfound()
 
@@ -176,8 +187,11 @@ def styled_image_path(sid, name):
 
 @app.route('/api/session/<sid>/comics', methods=['PUT'])
 def work_comics(sid):
+    data = request.get_json()
+    redo = get_flag(data, "redo")
+
     session = Session(sid)
-    if session.work_comics():
+    if session.work_comics(redo=redo):
         return ok_string(session.id)
     return notfound()
 

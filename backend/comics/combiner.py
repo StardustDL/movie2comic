@@ -64,6 +64,7 @@ class DefaultComicCombiner(ComicCombiner):
         OUTPUT_NAME = "output.jpg"
         FRAME_COUNT = 20
         WORD_IN_ONE_LINE = 10
+        MIN_SEGMENT_DURATION = 5
 
         # duration minimum, multi page, frame count one page
 
@@ -71,7 +72,7 @@ class DefaultComicCombiner(ComicCombiner):
 
         duration = float(info["duration"])
 
-        segment_duration = duration / FRAME_COUNT
+        segment_duration = max(MIN_SEGMENT_DURATION, duration / FRAME_COUNT)
 
         frame_ind = 0
         subtitle_ind = 0

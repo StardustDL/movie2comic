@@ -202,6 +202,10 @@ const App = {
                 this.pages.frames.info.enable = true;
             }
         },
+        onRedoFrames() {
+            this.workFrames(true);
+            this.pages.frames.result.name = "";
+        },
         onPreviewFrame(frame) {
             this.pages.frames.preview.frame = frame;
             this.pages.frames.preview.enable = true;
@@ -213,6 +217,10 @@ const App = {
             else {
                 this.pages.subtitles.info.enable = true;
             }
+        },
+        onRedoSubtitles() {
+            this.workSubtitles(true);
+            this.pages.subtitles.result.name = "";
         },
         onPreviewSubtitle(subtitle) {
             this.pages.subtitles.preview.subtitle = subtitle;
@@ -226,6 +234,10 @@ const App = {
                 this.pages.styles.info.enable = true;
             }
         },
+        onRedoStyles() {
+            this.workStyles(true);
+            this.pages.styles.result.name = "";
+        },
         onPreviewStyledFrame(frame) {
             this.pages.styles.preview.frame = frame;
             this.pages.styles.preview.enable = true;
@@ -238,11 +250,22 @@ const App = {
                 this.pages.comics.info.enable = true;
             }
         },
+        onRedoComics() {
+            this.workComics(true);
+            this.pages.comics.result.name = "";
+        },
         //#region libs
         //#region frames
-        async workFrames() {
+        async workFrames(redo=false) {
+            let data = {
+                redo: redo
+            };
             let settings = {
                 method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
             };
             await fetch(this.framesUrl, settings).then(res => res.text()).then(text => {
                 console.log(text);
@@ -265,9 +288,10 @@ const App = {
         },
         //#endregion
         //#region subtitles
-        async workSubtitles() {
+        async workSubtitles(redo=false) {
             let data = {
-                isZhcn: this.pages.subtitles.isZhcn
+                isZhcn: this.pages.subtitles.isZhcn,
+                redo: redo
             };
             let settings = {
                 method: 'PUT',
@@ -297,34 +321,16 @@ const App = {
         },
         //#endregion
         //#region styles
-        async workStyles() {
-            let settings = {
-                method: 'PUT',
+        async workStyles(redo=false) {
+            let data = {
+                redo: redo
             };
-            await fetch(this.stylesUrl, settings).then(res => res.text()).then(text => {
-                console.log(text);
-            });
-            this.$notification.info({ message: "Start style transferring." });
-        },
-        async resultStyles() {
-            let result = await fetch(this.stylesUrl).then(res => res.json());
-            this.pages.styles.result = result;
-            let noti = { message: "Style transferring finished." }
-            if (result.success) {
-                this.$notification.success(noti);
-            }
-            else {
-                this.$notification.error(noti);
-            }
-        },
-        styledFrameImageUrl(name) {
-            return `${this.stylesUrl}/${name}`;
-        },
-        //#endregion
-        //#region styles
-        async workStyles() {
             let settings = {
                 method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
             };
             await fetch(this.stylesUrl, settings).then(res => res.text()).then(text => {
                 console.log(text);
@@ -347,9 +353,16 @@ const App = {
         },
         //#endregion
         //#region comics
-        async workComics() {
+        async workComics(redo=false) {
+            let data = {
+                redo: redo
+            };
             let settings = {
                 method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
             };
             await fetch(this.comicsUrl, settings).then(res => res.text()).then(text => {
                 console.log(text);
