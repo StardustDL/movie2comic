@@ -68,7 +68,7 @@ class Session:
         self.style_dir = os.path.join(self.data_dir, "styles")
         self.style_file = os.path.join(self.style_dir, "info.json")
         self.output_dir = os.path.join(self.data_dir, "output")
-        self.output_file = os.path.join(self.output_dir, "output.png")
+        self.output_file = os.path.join(self.output_dir, "info.json")
 
     def state(self) -> SessionState:
         if not os.path.exists(self.data_dir):

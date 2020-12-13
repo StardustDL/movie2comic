@@ -105,8 +105,9 @@ class SoundSpliter:
 
 
 class DefaultSubtitleGenerator(SubtitleGenerator):
-    def __init__(self):
+    def __init__(self, is_zhcn=False):
         super().__init__()
+        self.is_zhcn = False
 
     def get_subtitles(self, input_file_path, output_dir) -> SubtitleStageResult:
 
@@ -124,9 +125,15 @@ class DefaultSubtitleGenerator(SubtitleGenerator):
 
         try:
             ds = DeepSpeech()
-            ds.load_model(os.path.join(
-                model_root, "deepspeech-0.9.3-models.pbmm"),
-                os.path.join(model_root, "deepspeech-0.9.3-models.scorer"))
+
+            if self.is_zhcn:
+                ds.load_model(os.path.join(
+                    model_root, "deepspeech-0.9.3-models-zh-CN.pbmm"),
+                    os.path.join(model_root, "deepspeech-0.9.3-models-zh-CN.scorer"))
+            else:
+                ds.load_model(os.path.join(
+                    model_root, "deepspeech-0.9.3-models.pbmm"),
+                    os.path.join(model_root, "deepspeech-0.9.3-models.scorer"))
 
             for i, (s, t) in enumerate(ranges):
                 name = names[i]
@@ -164,8 +171,7 @@ class PocketSphinxSubtitleGenerator(SubtitleGenerator):
 
             log += f"{phrase}: {start}~{end}\n"
 
-            phrases.append(Subtitle(str(phrase), start /
-                                    float(rate), end / float(rate)))
+            phrases.append(Subtitle("", str(phrase), start / float(rate), end / float(rate)))
 
         result = SubtitleStageResult()
         result.success = True

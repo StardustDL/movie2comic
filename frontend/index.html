@@ -124,10 +124,16 @@
 											:disabled="state == states.OnSubtitle">
 											{{ state > states.OnSubtitle ? "Information" : "Generate"}}
 										</a-button>
+
+										<div style="text-align: right;">
+											<a-switch v-model:checked="pages.subtitles.isZhcn" checked-children="zh-CN"
+											un-checked-children="en-US" :disabled="state >= states.OnSubtitle" />
+										</div>
+										
+
 										<a-card title="Subtitles">
 											<a-card-grid v-for="subtitle in pages.subtitles.result.subtitles"
-												@click="onPreviewSubtitle(subtitle)"
-												style="width:100%;">
+												@click="onPreviewSubtitle(subtitle)" style="width:100%;">
 												<a-card-meta :title="subtitle.text"
 													:description="`${readableSecondTimeString(subtitle.start)} ~ ${readableSecondTimeString(subtitle.end)}`">
 												</a-card-meta>

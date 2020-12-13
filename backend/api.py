@@ -95,7 +95,16 @@ def frame_image_path(sid, name):
 @app.route('/api/session/<sid>/subtitles', methods=['PUT'])
 def work_subtitles(sid):
     session = Session(sid)
-    if session.work_subtitles():
+    data = request.get_json()
+
+    isZhcn = False
+    if data.get("isZhcn"):
+        isZhcn = True
+
+    from .subtitles.generator import DefaultSubtitleGenerator
+    worker = DefaultSubtitleGenerator(isZhcn)
+    
+    if session.work_subtitles(worker):
         return ok_string(session.id)
     return notfound()
 

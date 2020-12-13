@@ -27,8 +27,8 @@ const App = {
                 AfterOutput: 11
             },
             apiUrl: PREPURL,
-            // sessionId: null,
-            sessionId: "43c79b3e-3c92-11eb-9892-0242ac170002", // DEBUG
+            sessionId: null,
+            // sessionId: "43c79b3e-3c92-11eb-9892-0242ac170002", // DEBUG
             stage: 0,
             state: 0,
             model: {
@@ -61,6 +61,7 @@ const App = {
                     }
                 },
                 subtitles: {
+                    isZhcn: false,
                     result: {
                         name: "",
                         success: false,
@@ -255,8 +256,15 @@ const App = {
         //#endregion
         //#region subtitles
         async workSubtitles() {
+            let data = {
+                isZhcn: this.pages.subtitles.isZhcn
+            };
             let settings = {
                 method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
             };
             await fetch(this.subtitlesUrl, settings).then(res => res.text()).then(text => {
                 console.log(text);
