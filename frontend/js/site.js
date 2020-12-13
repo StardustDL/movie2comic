@@ -98,6 +98,21 @@ const App = {
                     info: {
                         enable: false
                     }
+                },
+                comics: {
+                    result: {
+                        name: "",
+                        success: false,
+                        log: "",
+                        duration: 0,
+                        file: ""
+                    },
+                    preview: {
+                        enable: false,
+                    },
+                    info: {
+                        enable: false
+                    }
                 }
             }
         }
@@ -120,6 +135,9 @@ const App = {
                 }
                 if (this.state >= this.states.AfterStyle && this.pages.styles.result.name == "") {
                     this.resultStyles();
+                }
+                if (this.state >= this.states.AfterOutput && this.pages.comics.result.name == "") {
+                    this.resultComics();
                 }
             }
         },
@@ -201,6 +219,14 @@ const App = {
             this.pages.styles.preview.frame = frame;
             this.pages.styles.preview.enable = true;
         },
+        onWorkComics() {
+            if (this.state < this.states.AfterOutput) {
+                this.workComics();
+            }
+            else {
+                this.pages.comics.info.enable = true;
+            }
+        },
         //#region libs
         //#region frames
         async workFrames() {
@@ -277,6 +303,56 @@ const App = {
             return `${this.stylesUrl}/${name}`;
         },
         //#endregion
+        //#region styles
+        async workStyles() {
+            let settings = {
+                method: 'PUT',
+            };
+            await fetch(this.stylesUrl, settings).then(res => res.text()).then(text => {
+                console.log(text);
+            });
+            this.$notification.info({ message: "Start style transferring." });
+        },
+        async resultStyles() {
+            let result = await fetch(this.stylesUrl).then(res => res.json());
+            this.pages.styles.result = result;
+            let noti = { message: "Style transferring finished." }
+            if (result.success) {
+                this.$notification.success(noti);
+            }
+            else {
+                this.$notification.error(noti);
+            }
+        },
+        styledFrameImageUrl(name) {
+            return `${this.stylesUrl}/${name}`;
+        },
+        //#endregion
+        //#region comics
+        async workComics() {
+            let settings = {
+                method: 'PUT',
+            };
+            await fetch(this.comicsUrl, settings).then(res => res.text()).then(text => {
+                console.log(text);
+            });
+            this.$notification.info({ message: "Start comic combining." });
+        },
+        async resultComics() {
+            let result = await fetch(this.comicsUrl).then(res => res.json());
+            this.pages.comics.result = result;
+            let noti = { message: "Comic combining finished." }
+            if (result.success) {
+                this.$notification.success(noti);
+            }
+            else {
+                this.$notification.error(noti);
+            }
+        },
+        comicsFileUrl(file) {
+            return `${this.comicsUrl}/${file}`;
+        },
+        //#endregion
         //#endregion
     },
     computed: {
@@ -285,7 +361,7 @@ const App = {
                 return this.stage;
             }
             else { // after
-                return this.stage + 1;
+                return Math.min(this.stage + 1, this.stages.Output);
             }
         },
         selectedStage: {
@@ -324,6 +400,9 @@ const App = {
         stylesUrl() {
             return `${this.sessionUrl}/styles`;
         },
+        comicsUrl() {
+            return `${this.sessionUrl}/comics`;
+        },
     },
     mounted() {
         setInterval(() => {
@@ -345,6 +424,7 @@ const App = {
                             break;
                         case this.states.AfterStyle:
                             this.model.selectedStage = this.stages.Style;
+                            this.workComics();
                             break;
                         case this.states.AfterOutput:
                             this.model.auto = false;

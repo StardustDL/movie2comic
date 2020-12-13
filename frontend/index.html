@@ -179,7 +179,22 @@
 									</a-drawer>
 								</div>
 								<div v-show="selectedStage == stages.Output">
-									Comic
+									<a-space direction="vertical" style="width: 100%;">
+										<a-button @click="onWorkComics" size="large" style="width: 100%;"
+											:loading="state == states.OnOutput" :disabled="state == states.OnOutput">
+											{{ state > states.OnOutput ? "Information" : "Combine"}}
+										</a-button>
+										<a-card title="Comic">
+											<img :src="comicsFileUrl(pages.comics.result.file)" style="width: 100%" />
+										</a-card>
+									</a-space>
+									<a-drawer title="Comic Combination Result" placement="right" :closable="false"
+										width="512" v-model:visible="pages.comics.info.enable">
+										<a-result :status="pages.comics.result.success ? 'success' : 'error'"
+											:title="readableSecondTimeString(pages.comics.result.duration)"
+											:sub-title="pages.comics.result.log">
+										</a-result>
+									</a-drawer>
 								</div>
 							</div>
 						</a-space>

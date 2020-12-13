@@ -152,6 +152,38 @@ def styled_image_path(sid, name):
 # endregion
 
 
+# region comics
+
+
+@app.route('/api/session/<sid>/comics', methods=['PUT'])
+def work_comics(sid):
+    session = Session(sid)
+    if session.work_comics():
+        return ok_string(session.id)
+    return notfound()
+
+
+@app.route('/api/session/<sid>/comics', methods=['GET'])
+def result_comics(sid):
+    session = Session(sid)
+    result = session.result_comics()
+    if result:
+        return ok_json(result.as_dict())
+    else:
+        return notfound()
+
+
+@app.route('/api/session/<sid>/comics/<file>', methods=['GET'])
+def comic_file_path(sid, file):
+    session = Session(sid)
+    path = session.comic_file_path(file)
+    if path:
+        return send_file(path, mimetype="image/jpeg")
+    return notfound()
+
+# endregion
+
+
 @app.route('/api/session/<sid>', methods=['DELETE'])
 def clear(sid):
     session = Session(sid)

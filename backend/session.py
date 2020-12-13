@@ -1,3 +1,5 @@
+from .comics.model import ComicStageResult
+from .comics.combiner import ComicCombiner
 from .styles.model import StyleStageResult
 from .styles.transfer import StyleTransfer
 from .subtitles.model import SubtitleStageResult
@@ -203,6 +205,37 @@ class Session:
     def styled_image_path(self, name) -> Optional[str]:
         if self.state() >= SessionState.AfterStyle:
             path = os.path.join(self.style_dir, name)
+            if os.path.exists(path):
+                return path
+        return None
+
+    # endregion
+
+    # region comic
+
+    def work_comics(self, worker: ComicCombiner = None) -> bool:
+        if self.state() != SessionState.OnOutput - 1:
+            return False
+
+        if worker is None:
+            from .comics.combiner import DefaultComicCombiner
+            worker = DefaultComicCombiner()
+
+        os.mkdir(self.output_dir)
+
+        worker.sid = self.id
+        worker.start()
+
+        return True
+
+    def result_comics(self) -> Optional[ComicStageResult]:
+        if self.state() >= SessionState.AfterOutput:
+            return _load_result(self.output_file)
+        return None
+
+    def comic_file_path(self, file) -> Optional[str]:
+        if self.state() >= SessionState.AfterOutput:
+            path = os.path.join(self.output_dir, file)
             if os.path.exists(path):
                 return path
         return None
