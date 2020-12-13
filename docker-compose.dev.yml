@@ -5,11 +5,11 @@ services:
     image: abiosoft/caddy
     volumes:
       - ./Caddyfile:/etc/Caddyfile
-      - ./frontend:/var/www/public
     ports:
       - "5000:5000"
     links:
       - backend
+      - frontend
     restart: always
   backend:
     build:
@@ -23,3 +23,9 @@ services:
       - "python"
       - "-m"
       - "app"
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "5100:5000"

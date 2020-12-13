@@ -5,12 +5,15 @@ services:
     image: abiosoft/caddy
     volumes:
       - ./Caddyfile:/etc/Caddyfile
-      - ./frontend:/var/www/public
     ports:
       - "5000:5000"
     links:
       - backend
+      - frontend
+    restart: always
+  frontend:
+    image: stardustdl/movie2comic:frontend
     restart: always
   backend:
-    image: stardustdl/movie2comic
+    image: stardustdl/movie2comic:backend
     restart: always

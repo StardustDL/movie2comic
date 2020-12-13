@@ -1,0 +1,4 @@
+FROM abiosoft/caddy
+
+COPY ./frontend/Caddyfile /etc/Caddyfile
+COPY ./frontend/dist /var/www/public

@@ -1,5 +1,5 @@
 0.0.0.0:5000 {
-    root /var/www/public
+    proxy / http://frontend:5000
     proxy /api http://backend:5000
 
     log stdout

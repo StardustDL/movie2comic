@@ -13,7 +13,9 @@ Task backend {
 }
 
 Task frontend {
-    Exec { docker-compose -f .\docker-compose.dev.yml up -d httpd }
+    Set-Location ./frontend
+    Exec { npm run serve }
+    Set-Location ../
 }
 
 Task download-models {
@@ -25,4 +27,11 @@ Task download-models {
     Get-Location
     Get-ChildItem
     Set-Location ../../../..
+}
+
+Task build-frontend {
+    Set-Location ./frontend
+    Exec { npm ci }
+    Exec { npm run build }
+    Set-Location ../
 }

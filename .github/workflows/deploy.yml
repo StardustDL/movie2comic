@@ -2,6 +2,7 @@ name: Deploy
 
 on:
   push:
+    branches: [master]
 
 defaults:
   run:
@@ -32,12 +33,23 @@ jobs:
       run: Set-PSRepository -Name PSGallery -InstallationPolicy Trusted; Install-Module -Name psake
     - name: Download models
       run: Invoke-psake download-models
-    - name: Push images
+    - name: Build frontend
+      run: Invoke-psake build-frontend
+    - name: Push backend images
       uses: docker/build-push-action@v2
       with:
         context: .
         file: ./Dockerfile.backend
         push: true
         tags: |
-          stardustdl/movie2comic:latest
-          registry.cn-hangzhou.aliyuncs.com/stardustdl/movie2comic:latest
+          stardustdl/movie2comic:backend
+          registry.cn-hangzhou.aliyuncs.com/stardustdl/movie2comic:backend
+    - name: Push frontend images
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        file: ./Dockerfile.frontend
+        push: true
+        tags: |
+          stardustdl/movie2comic:frontend
+          registry.cn-hangzhou.aliyuncs.com/stardustdl/movie2comic:frontend
