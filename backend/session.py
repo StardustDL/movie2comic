@@ -169,6 +169,13 @@ class Session:
             return _load_result(self.subtitle_file)
         return None
 
+    def subtitle_audio_path(self, name) -> Optional[str]:
+        if self.state() >= SessionState.AfterSubtitle:
+            path = os.path.join(self.subtitle_dir, name)
+            if os.path.exists(path):
+                return path
+        return None
+
     # endregion
 
     # region style

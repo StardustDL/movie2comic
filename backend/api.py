@@ -109,6 +109,15 @@ def result_subtitles(sid):
     else:
         return notfound()
 
+
+@app.route('/api/session/<sid>/subtitles/<name>', methods=['GET'])
+def subtitle_audio_path(sid, name):
+    session = Session(sid)
+    path = session.subtitle_audio_path(name)
+    if path:
+        return send_file(path, mimetype="audio/wav")
+    return notfound()
+
 # endregion
 
 # region styles

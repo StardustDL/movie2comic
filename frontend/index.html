@@ -126,19 +126,22 @@
 										</a-button>
 										<a-card title="Subtitles">
 											<a-card-grid v-for="subtitle in pages.subtitles.result.subtitles"
-												style="width:25%;text-align:center">
+												@click="onPreviewSubtitle(subtitle)"
+												style="width:100%;">
 												<a-card-meta :title="subtitle.text"
 													:description="`${readableSecondTimeString(subtitle.start)} ~ ${readableSecondTimeString(subtitle.end)}`">
 												</a-card-meta>
 											</a-card-grid>
+											<a-modal width="1080px" v-model:visible="pages.subtitles.preview.enable"
+												:title="`${pages.subtitles.preview.subtitle.name} ${readableSecondTimeString(pages.subtitles.preview.subtitle.start)} ~ ${readableSecondTimeString(pages.subtitles.preview.subtitle.end)}`"
+												:footer="null">
+												<h1> {{ pages.subtitles.preview.subtitle.text }} </h1>
+												</br>
+												<audio controls
+													:src="subtitleAudioUrl(pages.subtitles.preview.subtitle.name)"
+													style="width: 100%"></audio>
+											</a-modal>
 										</a-card>
-										<a-list item-layout="horizontal">
-											<a-list-item v-for="subtitle in pages.subtitles.result.subtitles">
-												<a-list-item-meta :title="subtitle.text"
-													:description="`${readableSecondTimeString(subtitle.start)} ~ ${readableSecondTimeString(subtitle.end)}`">
-												</a-list-item-meta>
-											</a-list-item>
-										</a-list>
 									</a-space>
 									<a-drawer title="Subtitles Generating Result" placement="right" :closable="false"
 										width="512" v-model:visible="pages.subtitles.info.enable">

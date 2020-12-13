@@ -27,8 +27,8 @@ const App = {
                 AfterOutput: 11
             },
             apiUrl: PREPURL,
-            sessionId: null,
-            // sessionId: "43c79b3e-3c92-11eb-9892-0242ac170002", // DEBUG
+            // sessionId: null,
+            sessionId: "43c79b3e-3c92-11eb-9892-0242ac170002", // DEBUG
             stage: 0,
             state: 0,
             model: {
@@ -67,6 +67,15 @@ const App = {
                         log: "",
                         duration: 0,
                         subtitles: [],
+                    },
+                    preview: {
+                        enable: false,
+                        subtitle: {
+                            name: "",
+                            text: "",
+                            start: 0,
+                            end: 0
+                        }
                     },
                     info: {
                         enable: false
@@ -176,6 +185,10 @@ const App = {
                 this.pages.subtitles.info.enable = true;
             }
         },
+        onPreviewSubtitle(subtitle) {
+            this.pages.subtitles.preview.subtitle = subtitle;
+            this.pages.subtitles.preview.enable = true;
+        },
         onWorkStyles() {
             if (this.state < this.states.AfterStyle) {
                 this.workStyles();
@@ -213,9 +226,6 @@ const App = {
         frameImageUrl(name) {
             return `${this.framesUrl}/${name}`;
         },
-        styledFrameImageUrl(name) {
-            return `${this.stylesUrl}/${name}`;
-        },
         //#endregion
         //#region subtitles
         async workSubtitles() {
@@ -237,6 +247,9 @@ const App = {
             else {
                 this.$notification.error(noti);
             }
+        },
+        subtitleAudioUrl(name) {
+            return `${this.subtitlesUrl}/${name}`;
         },
         //#endregion
         //#region styles
@@ -260,7 +273,7 @@ const App = {
                 this.$notification.error(noti);
             }
         },
-        styledImageUrl(name) {
+        styledFrameImageUrl(name) {
             return `${this.stylesUrl}/${name}`;
         },
         //#endregion

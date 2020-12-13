@@ -4,10 +4,19 @@ from ..model import StageResult
 
 
 class Subtitle(PropertySerializable):
-    def __init__(self, text: str = "", start: float = 0.0, end: float = 0.0):
+    def __init__(self, name: str = "", text: str = "", start: float = 0.0, end: float = 0.0):
+        self.name = name
         self.text = text
         self.start = start
         self.end = end
+
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @name.setter
+    def name(self, value: str) -> None:
+        self._name = value
 
     @property
     def text(self) -> str:
@@ -49,6 +58,6 @@ class SubtitleStageResult(StageResult):
 
     def as_dict(self):
         dic = super().as_dict()
-        dic["subtitles"] = [{"text": fr.text, "start": fr.start, "end": fr.end}
+        dic["subtitles"] = [{"name": fr.name, "text": fr.text, "start": fr.start, "end": fr.end}
                             for fr in self.subtitles]
         return dic

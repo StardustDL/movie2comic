@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import enum
 import sys
 import time
 from typing import List, Tuple
@@ -13,6 +14,10 @@ from multiprocessing import Process
 from .model import Subtitle, SubtitleStageResult
 from ..worker import StageWorker
 from ..model import StageResult
+
+from pydub import AudioSegment
+from pydub.silence import detect_nonsilent
+import itertools
 
 
 class SubtitleGenerator(StageWorker):
@@ -51,28 +56,83 @@ class SubtitleGenerator(StageWorker):
         return result
 
 
+class SoundSpliter:
+    def __init__(self, audio_file):
+        self.audio = AudioSegment.from_mp3(audio_file)
+
+    def _split_on_silence_ranges(self, min_silence_len=1000, silence_thresh=-16, keep_silence=100,
+                                 seek_step=1):
+        # from the itertools documentation
+        def pairwise(iterable):
+            "s -> (s0,s1), (s1,s2), (s2, s3), ..."
+            a, b = itertools.tee(iterable)
+            next(b, None)
+            return zip(a, b)
+
+        if isinstance(keep_silence, bool):
+            keep_silence = len(self.audio) if keep_silence else 0
+
+        output_ranges = [
+            [start - keep_silence, end + keep_silence]
+            for (start, end)
+            in detect_nonsilent(self.audio, min_silence_len, silence_thresh, seek_step)
+        ]
+
+        for range_i, range_ii in pairwise(output_ranges):
+            last_end = range_i[1]
+            next_start = range_ii[0]
+            if next_start < last_end:
+                range_i[1] = (last_end+next_start)//2
+                range_ii[0] = range_i[1]
+
+        return [
+            (max(start, 0), min(end, len(self.audio)))
+            for start, end in output_ranges
+        ]
+
+    def get_ranges(self):  # [(0ms, 10ms)]
+        return self._split_on_silence_ranges(min_silence_len=200, silence_thresh=-45, keep_silence=400)
+
+    # return file name
+    def split_ranges(self, ranges, output_dir) -> List[str]:
+        result = []
+        for i, (s, t) in enumerate(ranges):
+            segment = self.audio[s:t]
+            name = "chunk{0}.wav".format(i)
+            segment.export(os.path.join(output_dir, name), format="wav")
+            result.append(name)
+        return result
+
+
 class DefaultSubtitleGenerator(SubtitleGenerator):
     def __init__(self):
         super().__init__()
 
     def get_subtitles(self, input_file_path, output_dir) -> SubtitleStageResult:
+
+        splitter = SoundSpliter(input_file_path)
+
+        ranges = splitter.get_ranges()
+        names = splitter.split_ranges(ranges, output_dir)
+
         model_root = os.path.join(os.path.dirname(
             os.path.realpath(__file__)), "deepspeech", "models")
 
-        from .deepspeech import process_audio
+        from .deepspeech import DeepSpeech
 
         result = SubtitleStageResult()
 
         try:
+            ds = DeepSpeech()
+            ds.load_model(os.path.join(
+                model_root, "deepspeech-0.9.3-models.pbmm"),
+                os.path.join(model_root, "deepspeech-0.9.3-models.scorer"))
 
-            raw = process_audio(input_file_path,
-                                os.path.join(
-                                    model_root, "deepspeech-0.9.3-models.pbmm"),
-                                os.path.join(model_root, "deepspeech-0.9.3-models.scorer"))
-
-            for w in raw:
+            for i, (s, t) in enumerate(ranges):
+                name = names[i]
+                text = ds.process_text(os.path.join(output_dir, name))
                 result.subtitles.append(
-                    Subtitle(w["word"], w["start_time"], w["start_time"] + w["duration"]))
+                    Subtitle(name, text, s / 1000, t / 1000))
         except Exception as ex:
             result.log = str(ex)
 

@@ -71,30 +71,45 @@ def metadata_json_output(metadata):
     return json.dumps(json_result, indent=2)
 
 
-def process_audio(audio_path, model_path, scorer_path) -> List[Dict[str, Any]]:
-    ds = Model(model_path)
-    desired_sample_rate = ds.sampleRate()
-    ds.enableExternalScorer(scorer_path)
+class DeepSpeech:
+    def __init__(self):
+        pass
 
-    fin = wave.open(audio_path, 'rb')
-    fs_orig = fin.getframerate()
-    if fs_orig != desired_sample_rate:
-        # print('Warning: original sample rate ({}) is different than {}hz. Resampling might produce erratic speech recognition.'.format(fs_orig, desired_sample_rate), file=sys.stderr)
-        fs_new, audio = convert_samplerate(audio_path, desired_sample_rate)
-    else:
-        audio = np.frombuffer(fin.readframes(fin.getnframes()), np.int16)
+    def load_model(self, model_path, scorer_path):
+        ds = Model(model_path)
+        self.desired_sample_rate = ds.sampleRate()
+        ds.enableExternalScorer(scorer_path)
+        self.ds = ds
 
-    audio_length = fin.getnframes() * (1/fs_orig)
-    fin.close()
+    def prepare_audio(self, audio_path):
+        fin = wave.open(audio_path, 'rb')
+        fs_orig = fin.getframerate()
+        if fs_orig != self.desired_sample_rate:
+            # print('Warning: original sample rate ({}) is different than {}hz. Resampling might produce erratic speech recognition.'.format(fs_orig, desired_sample_rate), file=sys.stderr)
+            fs_new, audio = convert_samplerate(
+                audio_path, self.desired_sample_rate)
+        else:
+            audio = np.frombuffer(fin.readframes(fin.getnframes()), np.int16)
 
-    transcript = ds.sttWithMetadata(audio, 1).transcripts[0]
+        audio_length = fin.getnframes() * (1/fs_orig)
+        fin.close()
+        return audio
 
-    return words_from_candidate_transcript(transcript)
+    def process_words(self, audio_path) -> List[Dict[str, Any]]:
+        audio = self.prepare_audio(audio_path)
 
-    """
-    [{
-        "word": "i",
-        "start_time": 1.82,
-        "duration": 0.06
-    }]
-    """
+        transcript = self.ds.sttWithMetadata(audio, 1).transcripts[0]
+
+        return words_from_candidate_transcript(transcript)
+
+        """
+        [{
+            "word": "i",
+            "start_time": 1.82,
+            "duration": 0.06
+        }]
+        """
+
+    def process_text(self, audio_path) -> str:
+        audio = self.prepare_audio(audio_path)
+        return self.ds.stt(audio)
