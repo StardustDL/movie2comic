@@ -40,6 +40,7 @@ const App = {
                     type: 0,
                     sid: null,
                     auto: false,
+                    sessions: []
                 },
                 frames: {
                     result: {
@@ -179,8 +180,17 @@ const App = {
                 this.$message.error(`${event.file.name} file upload failed.`);
             }
         },
+        onRefreshSessionList(event) {
+            fetch(`${this.sessionRootUrl}/all`).then(res => res.json()).then(sids => {
+                this.pages.start.sessions = sids;
+            });
+        },
         onStartExisted(event) {
             this.sessionId = this.pages.start.sid;
+            this.model.auto = this.pages.start.auto;
+        },
+        onSelectSession(sid) {
+            this.sessionId = sid;
             this.model.auto = this.pages.start.auto;
         },
         //#endregion
@@ -413,6 +423,7 @@ const App = {
         },
     },
     mounted() {
+        this.onRefreshSessionList(null);
         setInterval(() => {
             if (this.sessionId != null) {
                 this.updateState();

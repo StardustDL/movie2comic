@@ -19,3 +19,7 @@ services:
       - "5050:5050"
     volumes:
       - ./backend:/app
+    entrypoint:
+      - "python"
+      - "-m"
+      - "app"

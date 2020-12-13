@@ -6,7 +6,7 @@ from flask.helpers import send_file
 from flask_cors import CORS
 from .session import Session, SessionStage, SessionState
 from .serialization.json import Encoder, Decoder
-
+from . import settings
 
 app = Flask(__name__)
 CORS(app)
@@ -22,6 +22,16 @@ def ok_string(text):
 
 def ok_json(obj):
     return json.dumps(obj, cls=Encoder), 200, {"Content-Type": "application/json"}
+
+
+@app.route('/api/session/all', methods=['GET'])
+def get_all_session():
+    sids = []
+    for item in os.listdir(settings.DATA_PATH):
+        path = os.path.join(settings.DATA_PATH, item)
+        if os.path.isdir(path):
+            sids.append(item)
+    return ok_json(sids)
 
 
 @app.route('/api/session', methods=['POST'])
@@ -103,7 +113,7 @@ def work_subtitles(sid):
 
     from .subtitles.generator import DefaultSubtitleGenerator
     worker = DefaultSubtitleGenerator(isZhcn)
-    
+
     if session.work_subtitles(worker):
         return ok_string(session.id)
     return notfound()
