@@ -2,9 +2,9 @@ version: '3'
 
 services:
   httpd:
-    image: abiosoft/caddy
+    image: caddy
     volumes:
-      - ./Caddyfile:/etc/Caddyfile
+      - ./Caddyfile:/etc/caddy/Caddyfile
     ports:
       - "5000:5000"
     links:

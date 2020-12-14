@@ -16,7 +16,7 @@ services:
       context: .
       dockerfile: Dockerfile.backend.dev
     ports:
-      - "5050:5050"
+      - "5050:80"
     volumes:
       - ./backend:/app
     entrypoint:
@@ -25,7 +25,10 @@ services:
       - "app"
   frontend:
     build:
-      context: .
-      dockerfile: Dockerfile.frontend
+      context: ./frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ./frontend/nginx.conf:/etc/nginx/nginx.conf
+      - ./frontend/dist:/app
     ports:
-      - "5100:5000"
+      - "5100:80"

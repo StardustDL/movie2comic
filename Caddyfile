@@ -1,6 +1,4 @@
 0.0.0.0:5000 {
-    proxy / http://frontend:5000
-    proxy /api http://backend:5000
-
-    log stdout
+    reverse_proxy / http://frontend:80
+    reverse_proxy /api http://backend:80
 }

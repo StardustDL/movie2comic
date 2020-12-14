@@ -1,6 +1,0 @@
-0.0.0.0:5000 {
-    root /var/www/public
-    404 index.html
-
-    log stdout
-}

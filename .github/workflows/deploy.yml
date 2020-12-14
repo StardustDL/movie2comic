@@ -47,8 +47,7 @@ jobs:
     - name: Push frontend images
       uses: docker/build-push-action@v2
       with:
-        context: .
-        file: ./Dockerfile.frontend
+        context: ./frontend
         push: true
         tags: |
           stardustdl/movie2comic:frontend

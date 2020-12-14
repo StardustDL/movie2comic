@@ -13,4 +13,4 @@ RUN python -m pip install -r requirements.txt
 COPY ./backend /app
 WORKDIR /
 
-ENTRYPOINT [ "gunicorn", "-b", "0.0.0.0:5000", "-w", "4", "app:app" ]
+ENTRYPOINT [ "gunicorn", "-b", "0.0.0.0:80", "-w", "4", "app:app" ]
