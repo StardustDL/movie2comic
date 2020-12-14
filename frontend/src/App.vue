@@ -1,30 +1,137 @@
 <template>
-  <div id="nav">
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </div>
-  <router-view/>
+  <a-layout>
+    <a-layout-header :style="{ background: '#fff' }">
+      <h1>Movie2Comic</h1>
+      <a-menu theme="light"> </a-menu>
+    </a-layout-header>
+    <a-layout-content style="min-height: 100vh; margin-top: 30px">
+      <a-row type="flex" justify="center" align="top">
+        <a-col :span="18">
+          <a-space direction="vertical" style="width: 100%">
+            <a-steps v-model:current="currentStep" type="navigation">
+              <a-step
+                :status="getStepStatus(StepPageNames.Start)"
+                title="Start"
+                description="Create project"
+                @click="onStepClick(StepPageNames.Start)"
+              >
+              </a-step>
+              <a-step
+                :status="getStepStatus(StepPageNames.Frame)"
+                title="Keyframes"
+                description="Extract frames"
+                @click="onStepClick(StepPageNames.Frame)"
+              >
+              </a-step>
+              <a-step
+                :status="getStepStatus(StepPageNames.Subtitle)"
+                title="Subtitles"
+                description="Generate subtitles"
+                @click="onStepClick(StepPageNames.Subtitle)"
+              >
+              </a-step>
+              <a-step
+                :status="getStepStatus(StepPageNames.Style)"
+                title="Styles"
+                description="Transfer styles"
+                @click="onStepClick(StepPageNames.Style)"
+              >
+              </a-step>
+              <a-step
+                :status="getStepStatus(StepPageNames.Comic)"
+                title="Comic"
+                description="Get the comic"
+                @click="onStepClick(StepPageNames.Comic)"
+              >
+              </a-step>
+            </a-steps>
+            <router-view />
+          </a-space>
+        </a-col>
+      </a-row>
+    </a-layout-content>
+    <a-layout-footer>
+      Copyright <span class="mdi mdi-copyright"></span> 2020 - Movie2Comic -
+      StardustDL -
+      <a href="https://github.com/StardustDL/movie2comic"
+        ><span class="mdi mdi-github"></span> GitHub</a
+      >
+    </a-layout-footer>
+  </a-layout>
 </template>
 
-<style lang="scss">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
+<script lang="ts">
+import { defineComponent } from "vue";
+import { SessionState, SessionStage, StepPageNames } from "./models/enum";
 
-#nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
+export default defineComponent({
+  data() {
+    return {
+      SessionStage: SessionStage,
+      SessionState: SessionState,
+      StepPageNames: StepPageNames,
+    };
+  },
+  methods: {
+    getStepStatus(name: StepPageNames) {
+      const ps = this.processStage;
+      let id = SessionStage.Create;
+      switch (name) {
+        case StepPageNames.Frame:
+          id = SessionStage.Frame;
+          break;
+        case StepPageNames.Subtitle:
+          id = SessionStage.Subtitle;
+          break;
+        case StepPageNames.Style:
+          id = SessionStage.Style;
+          break;
+        case StepPageNames.Comic:
+          id = SessionStage.Output;
+          break;
+      }
+      if (id == ps || (id == SessionStage.Create && ps == SessionStage.Input)) {
+        return "process";
+      } else if (id < ps) {
+        return "finish";
+      }
+      return "wait";
+    },
+    onStepClick(name: StepPageNames) {
+      this.$router.replace({ name: name });
+    },
+  },
+  computed: {
+    processStage() {
+      if (this.$store.state.state % 2 == 0) {
+        // on
+        return this.$store.state.stage;
+      } else {
+        // after
+        return Math.min(
+          this.$store.state.stage + 1,
+          SessionStage.Output
+        ) as SessionStage;
+      }
+    },
+    currentStep() {
+      switch (this.$router.currentRoute.value.name) {
+        case StepPageNames.Start:
+          return 0;
+        case StepPageNames.Frame:
+          return 1;
+        case StepPageNames.Subtitle:
+          return 2;
+        case StepPageNames.Style:
+          return 3;
+        case StepPageNames.Comic:
+          return 4;
+      }
+      return 0;
     }
-  }
-}
+  },
+});
+</script>
+
+<style lang="scss">
 </style>
