@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import { StepPageNames } from '../models/enum'
 import Home from '../views/Home.vue'
-import PCreate from '../views/Create.vue'
+import PStart from '../views/Start.vue'
 import PFrame from '../views/Frame.vue'
 import PSubtitle from '../views/Subtitle.vue'
 import PStyle from '../views/Style.vue'
@@ -16,7 +16,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/Start',
     name: StepPageNames.Start,
-    component: PCreate
+    component: PStart
   },
   {
     path: '/Frame',

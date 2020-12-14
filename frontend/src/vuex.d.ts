@@ -7,6 +7,8 @@ declare module '@vue/runtime-core' {
   interface State {
     state: SessionState,
     stage: SessionStage,
+    sessionId: string,
+    apiUrl: string,
   }
 
   // provide typings for `this.$store`

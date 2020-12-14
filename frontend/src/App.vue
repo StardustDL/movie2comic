@@ -8,7 +8,7 @@
       <a-row type="flex" justify="center" align="top">
         <a-col :span="18">
           <a-space direction="vertical" style="width: 100%">
-            <a-steps v-model:current="currentStep" type="navigation">
+            <a-steps :current="currentStep" type="navigation">
               <a-step
                 :status="getStepStatus(StepPageNames.Start)"
                 title="Start"
@@ -62,7 +62,7 @@
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import { SessionState, SessionStage, StepPageNames } from "./models/enum";
+import { SessionState, SessionStage, StepPageNames } from "@/models/enum";
 
 export default defineComponent({
   data() {
@@ -128,10 +128,17 @@ export default defineComponent({
           return 4;
       }
       return 0;
-    }
+    },
+  },
+  mounted() {
+    this.$store.dispatch("autoUpdate");
   },
 });
 </script>
 
 <style lang="scss">
+.mdi {
+  margin-right: 5px;
+  font-size: large;
+}
 </style>
