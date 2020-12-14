@@ -134,6 +134,7 @@ export default defineComponent({
     async work(redo = false) {
       const data = {
         redo: redo,
+        isZhcn: this.isZhcn,
       };
       const settings = {
         method: "PUT",

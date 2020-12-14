@@ -1,3 +1,5 @@
+from .inputs.model import InputStageResult
+from .inputs.analyser import InputAnalyser
 from .comics.model import ComicStageResult
 from .comics.combiner import ComicCombiner
 from .styles.model import StyleStageResult
@@ -60,7 +62,8 @@ class Session:
         self.id = sid
         self.data_dir = os.path.join(data_root, self.id)
         self.input_dir = os.path.join(self.data_dir, "input")
-        self.video_file = os.path.join(self.input_dir, "input.dat")
+        self.video_file = os.path.join(self.data_dir, "input.dat")
+        self.input_file = os.path.join(self.input_dir, "info.json")
         self.frame_dir = os.path.join(self.data_dir, "frames")
         self.frame_file = os.path.join(self.frame_dir, "info.json")
         self.subtitle_dir = os.path.join(self.data_dir, "subtitles")
@@ -71,11 +74,11 @@ class Session:
         self.output_file = os.path.join(self.output_dir, "info.json")
 
     def state(self) -> SessionState:
-        if not os.path.exists(self.data_dir):
+        if not os.path.exists(self.video_file):
             return SessionState.AfterCreate
         if not os.path.exists(self.input_dir):
             return SessionState.AfterInitialize
-        if not os.path.exists(self.video_file):
+        if not os.path.exists(self.input_file):
             return SessionState.OnInput
         if not os.path.exists(self.frame_dir):
             return SessionState.AfterInput
@@ -104,10 +107,11 @@ class Session:
 
     def input_video(self, request_file) -> bool:
         if _is_allowed_file(request_file.filename):
-            os.mkdir(self.input_dir)
+
             tmp = self.video_file + ".tmp"
             request_file.save(tmp)
             shutil.move(tmp, self.video_file)
+
             return True
         return False
 
@@ -116,6 +120,29 @@ class Session:
             path = self.video_file
             if os.path.exists(path):
                 return path
+        return None
+    
+    def work_input(self, worker: InputAnalyser = None, redo=False) -> bool:
+        if redo and self.state() >= SessionState.AfterInput:
+            shutil.rmtree(self.input_dir)
+
+        if self.state() != SessionState.OnInput - 1:
+            return False
+
+        if worker is None:
+            from .inputs.analyser import DefaultInputAnalyser
+            worker = DefaultInputAnalyser()
+        
+        os.mkdir(self.input_dir)
+
+        worker.sid = self.id
+        worker.start()
+
+        return True
+    
+    def result_input(self) -> Optional[InputStageResult]:
+        if self.state() >= SessionState.AfterInput:
+            return _load_result(self.input_file)
         return None
 
     # region frame

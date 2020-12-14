@@ -53,6 +53,24 @@ def input_video():
             return notfound()
     return notfound()
 
+@app.route('/api/session/<sid>/input', methods=['PUT'])
+def work_input(sid):
+    data = request.get_json()
+    redo = get_flag(data, "redo")
+
+    session = Session(sid)
+    if session.work_input(redo=redo):
+        return ok_string(session.id)
+    return notfound()
+
+@app.route('/api/session/<sid>/input', methods=['GET'])
+def result_input(sid):
+    session = Session(sid)
+    result = session.result_input()
+    if result:
+        return ok_json(result.as_dict())
+    else:
+        return notfound()
 
 @app.route('/api/session/<sid>/stage', methods=['GET'])
 def get_stage(sid):

@@ -90,10 +90,24 @@ class SoundSpliter:
             for start, end in output_ranges
         ]
 
-    def get_ranges(self):  # [(0ms, 10ms)]
-        return self._split_on_silence_ranges(min_silence_len=200, silence_thresh=-45, keep_silence=400)
+    def get_ranges(self, min_duration=1):  # [(0ms, 10ms)]
+        raw = self._split_on_silence_ranges(
+            min_silence_len=200, silence_thresh=-45, keep_silence=400)
+        min_duration *= 1000  # to millisecconds
+        result = []
+        i = 0
+        while i < len(raw):
+            s, t = raw[i]
+            j = i+1
+            while j < len(raw) and t - s < min_duration:
+                _, t = raw[j]
+                j += 1
+            result.append((s, t))
+            i = j
+        return result
 
     # return file name
+
     def split_ranges(self, ranges, output_dir) -> List[str]:
         result = []
         for i, (s, t) in enumerate(ranges):
@@ -110,10 +124,11 @@ class DefaultSubtitleGenerator(SubtitleGenerator):
         self.is_zhcn = is_zhcn
 
     def get_subtitles(self, input_file_path, output_dir) -> SubtitleStageResult:
+        MIN_SEGMENT_DURATION = 5
 
         splitter = SoundSpliter(input_file_path)
 
-        ranges = splitter.get_ranges()
+        ranges = splitter.get_ranges(min_duration=MIN_SEGMENT_DURATION)
         names = splitter.split_ranges(ranges, output_dir)
 
         model_root = os.path.join(os.path.dirname(
@@ -138,8 +153,10 @@ class DefaultSubtitleGenerator(SubtitleGenerator):
             for i, (s, t) in enumerate(ranges):
                 name = names[i]
                 text = ds.process_text(os.path.join(output_dir, name))
-                result.subtitles.append(
-                    Subtitle(name, text, s / 1000, t / 1000))
+                text = text.strip()
+                if text != "":  # remove empty subtitle
+                    result.subtitles.append(
+                        Subtitle(name, text, s / 1000, t / 1000))
         except Exception as ex:
             result.log = str(ex)
 
@@ -171,7 +188,8 @@ class PocketSphinxSubtitleGenerator(SubtitleGenerator):
 
             log += f"{phrase}: {start}~{end}\n"
 
-            phrases.append(Subtitle("", str(phrase), start / float(rate), end / float(rate)))
+            phrases.append(Subtitle("", str(phrase), start /
+                                    float(rate), end / float(rate)))
 
         result = SubtitleStageResult()
         result.success = True

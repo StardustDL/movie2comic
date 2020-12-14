@@ -79,19 +79,83 @@
           </a-button>
         </template>
       </a-input>
-      <video
-        v-if="enableVideoPreview"
-        controls
-        :src="videoUrl"
+      <a-button
+        @click="onWork"
+        size="large"
         style="width: 100%"
-      ></video>
+        :loading="$store.state.state == SessionState.OnInput"
+        :disabled="$store.state.state == SessionState.OnInput"
+      >
+        {{
+          $store.state.state > SessionState.OnInput ? "Information" : "Analysis"
+        }}
+      </a-button>
+      <a-collapse>
+        <a-collapse-panel key="1" header="Operation">
+          <a-space>
+            <a-button @click="onRefresh">
+              <span class="mdi mdi-autorenew"></span>
+              Refresh
+            </a-button>
+            <a-button
+              @click="onRedo"
+              v-if="$store.state.state >= SessionState.AfterInput"
+            >
+              <span class="mdi mdi-refresh"></span>
+              Redo
+            </a-button>
+          </a-space>
+        </a-collapse-panel>
+      </a-collapse>
+      <div v-if="$store.state.state >= SessionState.AfterInput">
+        <a-descriptions title="Video Info">
+          <a-descriptions-item label="Name">
+            {{ result.info.name }}
+          </a-descriptions-item>
+          <a-descriptions-item label="Format">
+            {{ result.info.format }}
+          </a-descriptions-item>
+          <a-descriptions-item label="Duration">
+            {{ readableSecondTimeString(result.info.duration) }}
+          </a-descriptions-item>
+          <a-descriptions-item label="Width">
+            {{ result.info.width }}
+          </a-descriptions-item>
+          <a-descriptions-item label="Height">
+            {{ result.info.height }}
+          </a-descriptions-item>
+        </a-descriptions>
+      </div>
+      <a-card v-if="$store.state.state >= SessionState.AfterInput">
+        <template v-slot:title>
+          <span class="mdi mdi-video"></span>
+          Input
+        </template>
+        <video controls :src="videoUrl" style="width: 100%"></video>
+      </a-card>
     </a-space>
+    <a-drawer
+      title="Input Analyzing Result"
+      placement="right"
+      :closable="false"
+      width="512"
+      v-model:visible="info.enable"
+    >
+      <a-result
+        :status="result.success ? 'success' : 'error'"
+        :title="readableSecondTimeString(result.duration)"
+        :sub-title="result.log"
+      >
+      </a-result>
+    </a-drawer>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import { message } from "ant-design-vue";
+import { notification } from "ant-design-vue";
+import { readableSecondTimeString } from "@/helpers";
 import { SessionState, SessionStage } from "@/models/enum";
 
 export default defineComponent({
@@ -104,6 +168,22 @@ export default defineComponent({
       sid: null,
       auto: false,
       sessions: [],
+      result: {
+        name: "",
+        success: false,
+        log: "",
+        duration: 0,
+        info: {
+          duration: 0,
+          name: "",
+          format: "",
+          width: 0,
+          height: 0,
+        },
+      },
+      info: {
+        enable: false,
+      },
     };
   },
   computed: {
@@ -113,11 +193,42 @@ export default defineComponent({
     videoUrl() {
       return `${this.$store.getters.sessionUrl}/video`;
     },
-    enableVideoPreview() {
-      return this.$store.state.state >= SessionState.AfterInput;
+    basicUrl() {
+      return `${this.$store.getters.sessionUrl}/input`;
     },
   },
   methods: {
+    readableSecondTimeString(value: number) {
+      return readableSecondTimeString(value);
+    },
+    async work(redo = false) {
+      const data = {
+        redo: redo,
+      };
+      const settings = {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      };
+      await fetch(this.basicUrl, settings)
+        .then((res) => res.text())
+        .then((text) => {
+          console.log(text);
+        });
+      notification.info({ message: "Start input analyzing." });
+    },
+    async getResult() {
+      const result = await fetch(this.basicUrl).then((res) => res.json());
+      this.result = result;
+      const noti = { message: "Input analyzing finished." };
+      if (result.success) {
+        notification.success(noti);
+      } else {
+        notification.error(noti);
+      }
+    },
     onNew(event: any) {
       if (event.file.status == "done") {
         this.$store.commit("setSession", event.file.response.toString());
@@ -142,9 +253,26 @@ export default defineComponent({
     onClose() {
       this.$store.commit("setSession", "");
     },
+    onWork() {
+      if (this.$store.state.state < SessionState.AfterInput) {
+        this.work();
+      } else {
+        this.info.enable = true;
+      }
+    },
+    onRefresh() {
+      this.getResult();
+    },
+    onRedo() {
+      this.work(true);
+      this.result.name = "";
+    },
   },
   mounted() {
     this.onRefreshSessionList();
+    if (this.$store.state.state >= SessionState.AfterInput) {
+      this.getResult();
+    }
   },
 });
 </script>
