@@ -11,7 +11,24 @@
         $store.state.state > SessionState.OnStyle ? "Information" : "Transfer"
       }}
     </a-button>
-    <a-card>
+    <a-collapse>
+      <a-collapse-panel key="1" header="Operation">
+        <a-space>
+          <a-button @click="onRefresh">
+            <span class="mdi mdi-autorenew"></span>
+            Refresh
+          </a-button>
+          <a-button
+            @click="onRedo"
+            v-show="$store.state.state >= SessionState.AfterStyle"
+          >
+            <span class="mdi mdi-refresh"></span>
+            Redo
+          </a-button>
+        </a-space>
+      </a-collapse-panel>
+    </a-collapse>
+    <a-card v-if="$store.state.state >= SessionState.AfterStyle">
       <template v-slot:title>
         <span class="mdi mdi-flower"></span>
         Styled Frames
@@ -47,12 +64,6 @@
       :title="readableSecondTimeString(result.duration)"
       :sub-title="result.log"
     >
-      <template v-slot:extra>
-        <a-button @click="onRedo">
-          <span class="mdi mdi-refresh"></span>
-          Redo
-        </a-button>
-      </template>
     </a-result>
   </a-drawer>
 </template>
@@ -132,6 +143,9 @@ export default defineComponent({
       } else {
         this.info.enable = true;
       }
+    },
+    onRefresh() {
+      this.getResult();
     },
     onRedo() {
       this.work(true);

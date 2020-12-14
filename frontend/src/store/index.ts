@@ -7,7 +7,7 @@ export default createStore({
       state: SessionState.AfterCreate,
       stage: SessionStage.Create,
       sessionId: "",
-      apiUrl: "http://localhost:5050"
+      apiUrl: ""
     }
   },
   getters: {
@@ -19,6 +19,9 @@ export default createStore({
     },
   },
   mutations: {
+    setApi(state, value) {
+      state.apiUrl = value;
+    },
     setSession(state, value) {
       state.sessionId = value;
     },

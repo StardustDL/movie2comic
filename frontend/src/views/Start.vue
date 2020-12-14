@@ -37,14 +37,16 @@
           <a-space direction="vertical" style="width: 100%">
             <a-input placeholder="session ID" v-model:value="sid">
               <template v-slot:suffix>
-                <a-button type="primary" @click="onExisted">
-                  <span class="mdi mdi-check"></span>
-                  OK
-                </a-button>
-                <a-button @click="onRefreshSessionList">
-                  <span class="mdi mdi-refresh"></span>
-                  Refresh
-                </a-button>
+                <a-button-group>
+                  <a-button type="primary" @click="onExisted">
+                    <span class="mdi mdi-check"></span>
+                    OK
+                  </a-button>
+                  <a-button @click="onRefreshSessionList">
+                    <span class="mdi mdi-autorenew"></span>
+                    Refresh
+                  </a-button>
+                </a-button-group>
               </template>
             </a-input>
             <a-card title="Sessions">
@@ -117,11 +119,8 @@ export default defineComponent({
   },
   methods: {
     onNew(event: any) {
-      if (event.file.status != "uploading") {
-        return;
-      }
       if (event.file.status == "done") {
-        this.$store.commit("setSession", event.file.response);
+        this.$store.commit("setSession", event.file.response.toString());
         message.success(`${event.file.name} file uploaded successfully`);
       } else if (event.file.status == "error") {
         message.error(`${event.file.name} file upload failed.`);
@@ -142,7 +141,7 @@ export default defineComponent({
     },
     onClose() {
       this.$store.commit("setSession", "");
-    }
+    },
   },
   mounted() {
     this.onRefreshSessionList();

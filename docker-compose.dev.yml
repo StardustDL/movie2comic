@@ -19,10 +19,6 @@ services:
       - "5050:80"
     volumes:
       - ./backend/m2c:/app
-    entrypoint:
-      - "python"
-      - "-m"
-      - "app"
   frontend:
     build:
       context: ./frontend

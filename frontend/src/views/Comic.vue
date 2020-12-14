@@ -11,12 +11,26 @@
         $store.state.state > SessionState.OnOutput ? "Information" : "Combine"
       }}
     </a-button>
-    <a-card>
+    <a-collapse>
+      <a-collapse-panel key="1" header="Operation">
+        <a-space>
+          <a-button @click="onRefresh">
+            <span class="mdi mdi-autorenew"></span>
+            Refresh
+          </a-button>
+          <a-button @click="onRedo" v-if="$store.state.state >= SessionState.AfterOutput">
+            <span class="mdi mdi-refresh"></span>
+            Redo
+          </a-button>
+        </a-space>
+      </a-collapse-panel>
+    </a-collapse>
+    <a-card v-show="$store.state.state >= SessionState.AfterOutput">
       <template v-slot:title>
         <span class="mdi mdi-image"></span>
         Comic
       </template>
-      <img v-if="$store.state.state >= SessionState.AfterOutput" :src="previewUrl(result.file)" style="width: 100%" />
+      <img :src="previewUrl(result.file)" style="width: 100%" />
     </a-card>
   </a-space>
   <a-drawer
@@ -31,12 +45,6 @@
       :title="readableSecondTimeString(result.duration)"
       :sub-title="result.log"
     >
-      <template v-slot:extra>
-        <a-button @click="onRedo">
-          <span class="mdi mdi-refresh"></span>
-          Redo
-        </a-button>
-      </template>
     </a-result>
   </a-drawer>
 </template>
@@ -110,6 +118,9 @@ export default defineComponent({
       } else {
         this.info.enable = true;
       }
+    },
+    onRefresh() {
+      this.getResult();
     },
     onRedo() {
       this.work(true);
