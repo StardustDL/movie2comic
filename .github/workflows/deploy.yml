@@ -35,19 +35,22 @@ jobs:
       run: Invoke-psake download-models
     - name: Build frontend
       run: Invoke-psake build-frontend
-    - name: Push backend images
-      uses: docker/build-push-action@v2
-      with:
-        context: ./backend
-        push: true
-        tags: |
-          stardustdl/movie2comic:backend
-          registry.cn-hangzhou.aliyuncs.com/stardustdl/movie2comic:backend
     - name: Push frontend images
       uses: docker/build-push-action@v2
       with:
         context: ./frontend
+        file: ./frontend/Dockerfile
         push: true
         tags: |
           stardustdl/movie2comic:frontend
           registry.cn-hangzhou.aliyuncs.com/stardustdl/movie2comic:frontend
+    - name: Push backend images
+      uses: docker/build-push-action@v2
+      with:
+        context: ./backend
+        file: ./backend/Dockerfile
+        push: true
+        tags: |
+          stardustdl/movie2comic:backend
+          registry.cn-hangzhou.aliyuncs.com/stardustdl/movie2comic:backend
+    

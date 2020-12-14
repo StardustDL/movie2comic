@@ -15,14 +15,14 @@ Task frontend {
 }
 
 Task download-models {
-    Set-Location ./backend/subtitles/deepspeech/models
+    Set-Location ./backend/m2c/subtitles/deepspeech/models
     Exec { curl -LO https://github.com/mozilla/DeepSpeech/releases/download/v0.9.3/deepspeech-0.9.3-models.pbmm }
     Exec { curl -LO https://github.com/mozilla/DeepSpeech/releases/download/v0.9.3/deepspeech-0.9.3-models.scorer }
     Exec { curl -LO https://github.com/mozilla/DeepSpeech/releases/download/v0.9.3/deepspeech-0.9.3-models-zh-CN.pbmm }
     Exec { curl -LO https://github.com/mozilla/DeepSpeech/releases/download/v0.9.3/deepspeech-0.9.3-models-zh-CN.scorer }
     Get-Location
     Get-ChildItem
-    Set-Location ../../../..
+    Set-Location ../../../../../
 }
 
 Task build-frontend {
