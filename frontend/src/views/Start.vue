@@ -70,6 +70,12 @@
         addon-before="Session ID"
         size="large"
       >
+        <template v-slot:suffix>
+          <a-button type="danger" @click="onClose">
+            <span class="mdi mdi-close"></span>
+            Close
+          </a-button>
+        </template>
       </a-input>
       <video
         v-if="enableVideoPreview"
@@ -84,7 +90,7 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import { message } from "ant-design-vue";
-import { SessionState, SessionStage, StepPageNames } from "@/models/enum";
+import { SessionState, SessionStage } from "@/models/enum";
 
 export default defineComponent({
   name: "Start",
@@ -98,6 +104,17 @@ export default defineComponent({
       sessions: [],
     };
   },
+  computed: {
+    sessionId() {
+      return this.$store.state.sessionId;
+    },
+    videoUrl() {
+      return `${this.$store.getters.sessionUrl}/video`;
+    },
+    enableVideoPreview() {
+      return this.$store.state.state >= SessionState.AfterInput;
+    },
+  },
   methods: {
     onNew(event: any) {
       if (event.file.status != "uploading") {
@@ -105,7 +122,6 @@ export default defineComponent({
       }
       if (event.file.status == "done") {
         this.$store.commit("setSession", event.file.response);
-        this.sessionId = event.file.response;
         message.success(`${event.file.name} file uploaded successfully`);
       } else if (event.file.status == "error") {
         message.error(`${event.file.name} file upload failed.`);
@@ -124,16 +140,8 @@ export default defineComponent({
     onSelectSession(sid: string) {
       this.$store.commit("setSession", sid);
     },
-  },
-  computed: {
-    sessionId() {
-      return this.$store.state.sessionId;
-    },
-    videoUrl() {
-      return `${this.$store.getters.sessionUrl}/video`;
-    },
-    enableVideoPreview() {
-      return this.$store.state.state >= SessionState.AfterInput;
+    onClose() {
+      this.$store.commit("setSession", "");
     }
   },
   mounted() {

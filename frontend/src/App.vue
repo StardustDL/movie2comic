@@ -13,6 +13,7 @@
                 :status="getStepStatus(StepPageNames.Start)"
                 title="Start"
                 description="Create project"
+                :disabled="getStepStatus(StepPageNames.Start) == 'wait'"
                 @click="onStepClick(StepPageNames.Start)"
               >
               </a-step>
@@ -20,6 +21,7 @@
                 :status="getStepStatus(StepPageNames.Frame)"
                 title="Keyframes"
                 description="Extract frames"
+                :disabled="getStepStatus(StepPageNames.Frame) == 'wait'"
                 @click="onStepClick(StepPageNames.Frame)"
               >
               </a-step>
@@ -27,6 +29,7 @@
                 :status="getStepStatus(StepPageNames.Subtitle)"
                 title="Subtitles"
                 description="Generate subtitles"
+                :disabled="getStepStatus(StepPageNames.Subtitle) == 'wait'"
                 @click="onStepClick(StepPageNames.Subtitle)"
               >
               </a-step>
@@ -34,6 +37,7 @@
                 :status="getStepStatus(StepPageNames.Style)"
                 title="Styles"
                 description="Transfer styles"
+                :disabled="getStepStatus(StepPageNames.Style) == 'wait'"
                 @click="onStepClick(StepPageNames.Style)"
               >
               </a-step>
@@ -41,6 +45,7 @@
                 :status="getStepStatus(StepPageNames.Comic)"
                 title="Comic"
                 description="Get the comic"
+                :disabled="getStepStatus(StepPageNames.Comic) == 'wait'"
                 @click="onStepClick(StepPageNames.Comic)"
               >
               </a-step>
@@ -72,35 +77,6 @@ export default defineComponent({
       StepPageNames: StepPageNames,
     };
   },
-  methods: {
-    getStepStatus(name: StepPageNames) {
-      const ps = this.processStage;
-      let id = SessionStage.Create;
-      switch (name) {
-        case StepPageNames.Frame:
-          id = SessionStage.Frame;
-          break;
-        case StepPageNames.Subtitle:
-          id = SessionStage.Subtitle;
-          break;
-        case StepPageNames.Style:
-          id = SessionStage.Style;
-          break;
-        case StepPageNames.Comic:
-          id = SessionStage.Output;
-          break;
-      }
-      if (id == ps || (id == SessionStage.Create && ps == SessionStage.Input)) {
-        return "process";
-      } else if (id < ps) {
-        return "finish";
-      }
-      return "wait";
-    },
-    onStepClick(name: StepPageNames) {
-      this.$router.replace({ name: name });
-    },
-  },
   computed: {
     processStage() {
       if (this.$store.state.state % 2 == 0) {
@@ -128,6 +104,38 @@ export default defineComponent({
           return 4;
       }
       return 0;
+    },
+  },
+  methods: {
+    getStepStatus(name: StepPageNames) {
+      const ps = this.processStage;
+      let id = SessionStage.Create;
+      switch (name) {
+        case StepPageNames.Frame:
+          id = SessionStage.Frame;
+          break;
+        case StepPageNames.Subtitle:
+          id = SessionStage.Subtitle;
+          break;
+        case StepPageNames.Style:
+          id = SessionStage.Style;
+          break;
+        case StepPageNames.Comic:
+          id = SessionStage.Output;
+          break;
+      }
+      if (id == ps || (id == SessionStage.Create && ps == SessionStage.Input)) {
+        return "process";
+      } else if (id < ps) {
+        return "finish";
+      }
+      return "wait";
+    },
+    onStepClick(name: StepPageNames) {
+      if (this.getStepStatus(name) == "wait") {
+        return;
+      }
+      this.$router.replace({ name: name });
     },
   },
   mounted() {

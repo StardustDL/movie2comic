@@ -43,8 +43,12 @@ export default createStore({
     },
     autoUpdate(context) {
       setInterval(() => {
-        if (context.state.sessionId != null) {
+        if (context.state.sessionId) {
           context.dispatch("updateState");
+        }
+        else {
+          context.commit("setState", 0);
+          context.commit("setStage", 0);
         }
       }, 2000);
     }
