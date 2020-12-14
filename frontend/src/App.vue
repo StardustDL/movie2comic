@@ -1,7 +1,9 @@
 <template>
-  <a-layout style="min-height: 100vh;">
+  <a-layout style="min-height: 100vh">
     <a-layout-header :style="{ background: '#fff' }">
-      <h1>Movie2Comic</h1>
+      <h1>
+        <router-link to="/">Movie2Comic</router-link>
+      </h1>
       <a-menu theme="light"> </a-menu>
     </a-layout-header>
     <a-layout-content style="margin-top: 30px">

@@ -36,7 +36,7 @@
         </a-space>
       </a-collapse-panel>
     </a-collapse>
-    <a-card v-show="$store.state.state >= SessionState.AfterSubtitle">
+    <a-card v-if="$store.state.state >= SessionState.AfterSubtitle">
       <template v-slot:title>
         <span class="mdi mdi-subtitles"></span>
         Subtitles

@@ -25,7 +25,7 @@
         </a-space>
       </a-collapse-panel>
     </a-collapse>
-    <a-card v-show="$store.state.state >= SessionState.AfterFrame">
+    <a-card v-if="$store.state.state >= SessionState.AfterFrame">
       <template v-slot:title>
         <span class="mdi mdi-image-multiple"></span>
         Frames

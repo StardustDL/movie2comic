@@ -25,7 +25,7 @@
         </a-space>
       </a-collapse-panel>
     </a-collapse>
-    <a-card v-show="$store.state.state >= SessionState.AfterOutput">
+    <a-card v-if="$store.state.state >= SessionState.AfterOutput">
       <template v-slot:title>
         <span class="mdi mdi-image"></span>
         Comic
