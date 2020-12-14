@@ -13,12 +13,12 @@ services:
     restart: always
   backend:
     build:
-      context: .
-      dockerfile: Dockerfile.backend.dev
+      context: ./backend
+      dockerfile: Dockerfile.dev
     ports:
       - "5050:80"
     volumes:
-      - ./backend:/app
+      - ./backend/m2c:/app
     entrypoint:
       - "python"
       - "-m"

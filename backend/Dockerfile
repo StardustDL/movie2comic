@@ -10,7 +10,7 @@ RUN sed -i 's/deb.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list && \
 COPY ./requirements.txt /requirements.txt
 RUN python -m pip install -r requirements.txt
 
-COPY ./backend /app
+COPY ./m2c /app
 WORKDIR /
 
 ENTRYPOINT [ "gunicorn", "-b", "0.0.0.0:80", "-w", "4", "app:app" ]

@@ -10,7 +10,7 @@ RUN sed -i 's/deb.debian.org/mirrors.ustc.edu.cn/g' /etc/apt/sources.list && \
 COPY ./requirements.txt /requirements.txt
 RUN python -m pip install -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com -r requirements.txt
 
-COPY ./backend /app
+COPY ./m2c /app
 WORKDIR /
 
 ENTRYPOINT [ "python", "-m", "app" ]

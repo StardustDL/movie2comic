@@ -38,8 +38,7 @@ jobs:
     - name: Push backend images
       uses: docker/build-push-action@v2
       with:
-        context: .
-        file: ./Dockerfile.backend
+        context: ./backend
         push: true
         tags: |
           stardustdl/movie2comic:backend
