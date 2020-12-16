@@ -77,6 +77,7 @@ export default defineComponent({
       SessionStage: SessionStage,
       SessionState: SessionState,
       StepPageNames: StepPageNames,
+      updateInterval: -1,
     };
   },
   computed: {
@@ -144,7 +145,20 @@ export default defineComponent({
     if (process && process.env.NODE_ENV === "development") {
       this.$store.commit("setApi", "http://localhost:5050");
     }
-    this.$store.dispatch("autoUpdate");
+    this.updateInterval = setInterval(() => {
+      if (this.$store.state.sessionId) {
+        this.$store.dispatch("updateState");
+      } else {
+        this.$store.commit("setState", 0);
+        this.$store.commit("setStage", 0);
+      }
+    }, 2000);
+  },
+  unmounted() {
+    if (this.updateInterval >= 0) {
+      clearInterval(this.updateInterval);
+      this.updateInterval = -1;
+    }
   },
 });
 </script>

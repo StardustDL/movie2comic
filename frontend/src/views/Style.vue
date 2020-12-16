@@ -95,6 +95,7 @@ export default defineComponent({
       info: {
         enable: false,
       },
+      updateInterval: -1,
     };
   },
   computed: {
@@ -157,8 +158,19 @@ export default defineComponent({
     },
   },
   mounted() {
-    if (this.$store.state.state >= SessionState.AfterStyle) {
-      this.getResult();
+    this.updateInterval = setInterval(() => {
+      if (
+        this.$store.state.state >= SessionState.AfterStyle &&
+        this.result.name == ""
+      ) {
+        this.getResult();
+      }
+    }, 2000);
+  },
+  unmounted() {
+    if (this.updateInterval >= 0) {
+      clearInterval(this.updateInterval);
+      this.updateInterval = -1;
     }
   },
 });

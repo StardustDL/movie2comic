@@ -18,7 +18,10 @@
             <span class="mdi mdi-autorenew"></span>
             Refresh
           </a-button>
-          <a-button @click="onRedo" v-if="$store.state.state >= SessionState.AfterOutput">
+          <a-button
+            @click="onRedo"
+            v-if="$store.state.state >= SessionState.AfterOutput"
+          >
             <span class="mdi mdi-refresh"></span>
             Redo
           </a-button>
@@ -70,6 +73,7 @@ export default defineComponent({
       info: {
         enable: false,
       },
+      updateInterval: -1,
     };
   },
   computed: {
@@ -128,8 +132,19 @@ export default defineComponent({
     },
   },
   mounted() {
-    if (this.$store.state.state >= SessionState.AfterOutput) {
-      this.getResult();
+    this.updateInterval = setInterval(() => {
+      if (
+        this.$store.state.state >= SessionState.AfterOutput &&
+        this.result.name == ""
+      ) {
+        this.getResult();
+      }
+    }, 2000);
+  },
+  unmounted() {
+    if (this.updateInterval >= 0) {
+      clearInterval(this.updateInterval);
+      this.updateInterval = -1;
     }
   },
 });

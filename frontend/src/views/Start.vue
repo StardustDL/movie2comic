@@ -184,6 +184,7 @@ export default defineComponent({
       info: {
         enable: false,
       },
+      updateInterval: -1,
     };
   },
   computed: {
@@ -270,8 +271,19 @@ export default defineComponent({
   },
   mounted() {
     this.onRefreshSessionList();
-    if (this.$store.state.state >= SessionState.AfterInput) {
-      this.getResult();
+    this.updateInterval = setInterval(() => {
+      if (
+        this.$store.state.state >= SessionState.AfterInput &&
+        this.result.name == ""
+      ) {
+        this.getResult();
+      }
+    }, 2000);
+  },
+  unmounted() {
+    if (this.updateInterval >= 0) {
+      clearInterval(this.updateInterval);
+      this.updateInterval = -1;
     }
   },
 });
