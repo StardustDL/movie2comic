@@ -11,7 +11,7 @@
     "ant-design-vue": "^2.0.0-rc.5",
     "core-js": "^3.6.5",
     "register-service-worker": "^1.7.1",
-    "vditor": "^3.7.2",
+    "vditor": "^3.7.3",
     "vue": "^3.0.0",
     "vue-router": "^4.0.0-0",
     "vuex": "^4.0.0-0"
