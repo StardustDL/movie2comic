@@ -191,7 +191,7 @@ export default defineComponent({
       ) {
         this.getResult();
       }
-    }, 2000);
+    }, 1000);
   },
   unmounted() {
     if (this.updateInterval >= 0) {

@@ -51,15 +51,24 @@ def add_text_to_image(image, text, font=None):
     text_size_x, text_size_y = image_draw.textsize(text, font=font)
     font_size = 32
     while text_size_x > rgba_image.size[0] - 20 or text_size_y > rgba_image.size[1] - 20:
-        font_size -= 2
-        if font_size <= 0:
+        if font_size <= 2:
             break
+        font_size -= 2
         font = ImageFont.truetype(
             '/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf', font_size)
         text_size_x, text_size_y = image_draw.textsize(text, font=font)
 
+    font = ImageFont.truetype(
+        '/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf', font_size)
+    text_size_x, text_size_y = image_draw.textsize(text, font=font)
     text_xy = (rgba_image.size[0] - text_size_x - 20,
                rgba_image.size[1] - text_size_y - 20)
+
+    image_draw.text((text_xy[0] - 1, text_xy[1] - 1), text, font=font, fill=(0, 0, 0, 255))
+    image_draw.text((text_xy[0] - 1, text_xy[1] + 1), text, font=font, fill=(0, 0, 0, 255))
+    image_draw.text((text_xy[0] + 1, text_xy[1] - 1), text, font=font, fill=(0, 0, 0, 255))
+    image_draw.text((text_xy[0] + 1, text_xy[1] + 1), text, font=font, fill=(0, 0, 0, 255))
+
     image_draw.text(text_xy, text, font=font, fill=(255, 255, 255, 255))
 
     image_with_text = Image.alpha_composite(rgba_image, text_overlay)
@@ -80,8 +89,9 @@ class DefaultComicCombiner(ComicCombiner):
         # TODO: duration minimum, multi page, frame count one page
 
         duration = info.duration
-
-        segment_duration = max(MIN_SEGMENT_DURATION, duration / FRAME_COUNT)
+        
+        frame_count = min(FRAME_COUNT, len(frames))
+        segment_duration = max(MIN_SEGMENT_DURATION, duration / frame_count)
 
         frame_ind = 0
         subtitle_ind = 0
@@ -146,7 +156,9 @@ class DefaultComicCombiner(ComicCombiner):
             position += segment_duration
 
         frame_cnt = len(pieces)
-        width, height = int(info.width), int(info.height) * int(math.ceil(frame_cnt / 2))
+
+        # Styled frame max size 1280*720
+        width, height = min(1280,int(info.width)), min(720,int(info.height)) * int(math.ceil(frame_cnt / 2))
 
         result_img = Image.new('RGB', (2*width, height))
         current_width, current_height = 0, 0
