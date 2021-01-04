@@ -49,6 +49,15 @@ def add_text_to_image(image, text, font=None):
     image_draw = ImageDraw.Draw(text_overlay)
 
     text_size_x, text_size_y = image_draw.textsize(text, font=font)
+    font_size = 32
+    while text_size_x > rgba_image.size[0] - 20 or text_size_y > rgba_image.size[1] - 20:
+        font_size -= 2
+        if font_size <= 0:
+            break
+        font = ImageFont.truetype(
+            '/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf', font_size)
+        text_size_x, text_size_y = image_draw.textsize(text, font=font)
+
     text_xy = (rgba_image.size[0] - text_size_x - 20,
                rgba_image.size[1] - text_size_y - 20)
     image_draw.text(text_xy, text, font=font, fill=(255, 255, 255, 255))
