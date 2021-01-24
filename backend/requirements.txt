@@ -4,7 +4,7 @@ gunicorn==20.0.4
 flask-cors==3.0.9
 tensorflow==2.4.0
 tf_slim==1.1.0
-opencv_python==4.4.0.46
+opencv_python==4.5.1.48
 pocketsphinx==0.1.15
 deepspeech==0.9.3
 pydub==0.24.1
