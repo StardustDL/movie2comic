@@ -13,7 +13,7 @@
     "register-service-worker": "^1.7.1",
     "vditor": "^3.7.2",
     "vue": "^3.0.0",
-    "vue-router": "^4.0.0-0",
+    "vue-router": "^4.0.8",
     "vuex": "^4.0.0-0"
   },
   "devDependencies": {
