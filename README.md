@@ -1,4 +1,4 @@
-# Movie2Comic
+![Movie2Comic](https://socialify.git.ci/StardustDL/movie2comic/image?description=1&font=Bitter&forks=1&issues=1&language=1&owner=1&pulls=1&stargazers=1&theme=Light)
 
 ![](https://shields.io/github/stars/StardustDL/movie2comic?style=social) ![](https://shields.io/github/forks/StardustDL/movie2comic?style=social) ![Deploy](https://github.com/StardustDL/movie2comic/workflows/Deploy/badge.svg) ![](https://shields.io/github/license/StardustDL/movie2comic) ![](https://shields.io/docker/pulls/stardustdl/movie2comic)
 
